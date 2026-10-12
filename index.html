@@ -54,12 +54,21 @@
 }
 </script>
 
-<!-- Boot gate: runs before first paint so the boot overlay never flashes the site underneath -->
+<!-- Boot gate: runs before first paint so neither the boot overlay nor a saved theme (red/blue pill) flashes the wrong state -->
 <script>
-  (function (c) {
+  (function (d) {
+    var root = d.documentElement, c = root.classList, theme = null;
     c.remove('no-js'); c.add('js');
-    try { if (!sessionStorage.getItem('vp-booted')) c.add('booting'); } catch (e) { c.add('booting'); }
-  })(document.documentElement.classList);
+    try {
+      if (!sessionStorage.getItem('vp-booted')) c.add('booting');
+      theme = sessionStorage.getItem('vp-theme');
+    } catch (e) { c.add('booting'); }
+    if (theme === 'red' || theme === 'blue') {
+      root.setAttribute('data-theme', theme);
+      var meta = d.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', theme === 'red' ? '#0d0103' : '#020617');
+    }
+  })(document);
 </script>
 
 <style>
@@ -68,7 +77,7 @@
    0 Tokens · 1 Base · 2 Background layers (backdrop, rain, CRT) · 3 Boot
    4 Nav · 5 Shared components · 6 Hero · 7 About · 8 Skills · 9 Projects
    10 Studio · 11 Freelance · 12 Contact + terminal · 13 Footer · 14 Toast
-   15 Reveal · 16 Reduced motion
+   15 Reveal · 16 Mode effects (red / blue pill) · 17 Reduced motion
    ========================================================================== */
 
 /* ---------- 0. Design tokens ---------- */
@@ -89,6 +98,20 @@
   --line-strong: rgba(var(--accent-rgb), 0.42);
   --glow-sm: 0 0 8px rgba(var(--accent-rgb), 0.5);
   --glow-md: 0 0 22px rgba(var(--accent-rgb), 0.3);
+  --secondary: #008f11;              /* decorative secondary (rain tail, glows) */
+  --nav-link: rgba(var(--accent-rgb), 0.75);
+  --shade-rgb: 0, 0, 0;              /* translucent overlays: nav, menu, hero shade, toast, footer */
+  --term-bg: rgba(0, 5, 1, 0.94);
+  --screen-bg: #010402;
+
+  /* Theme-driven effects */
+  --rain-alt: #008f11;
+  --rain-opacity: 0.3;
+  --scan-line: rgba(0, 0, 0, 0.22);
+  --scan-opacity: 0.6;
+  --vignette: rgba(0, 0, 0, 0.55);
+  --radius: 0px;
+  --sweep: 4s;
 
   /* Type */
   --font-display: "Share Tech Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
@@ -101,18 +124,64 @@
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
-/* Palette: red pill */
+/* Mode: red pill — the truth. Aggressive, unstable. (Readable text colours stay >= 4.5:1 on the background.) */
 html[data-theme="red"] {
-  --bg-2: #0b0202;
-  --bg-glow: #2a0606;
-  --panel: rgba(12, 2, 2, 0.88);
-  --accent: #ff3333;
-  --accent-rgb: 255, 51, 51;
-  --dim: #db3e3e;
-  --hi: #ffe3e3;
-  --text: #ffcaca;
-  --rain-trail: #ff2a2a;
-  --rain-head: #ffe1e1;
+  --bg: #050000;
+  --bg-2: #0d0103;
+  --bg-glow: #3a0008;
+  --panel: rgba(14, 1, 3, 0.9);
+  --accent: #ff1744;
+  --accent-rgb: 255, 23, 68;
+  --secondary: #8b0000;
+  --dim: #f05a6a;
+  --hi: #ffe4e8;
+  --text: #ffc9d0;
+  --line: rgba(139, 0, 0, 0.75);
+  --line-strong: rgba(255, 23, 68, 0.5);
+  --glow-sm: 0 0 8px rgba(255, 23, 68, 0.6);
+  --glow-md: 0 0 24px rgba(139, 0, 0, 0.55);
+  --nav-link: var(--dim);
+  --shade-rgb: 8, 0, 2;
+  --term-bg: rgba(8, 0, 2, 0.95);
+  --screen-bg: #0a0002;
+  --rain-trail: #ff1744;
+  --rain-head: #ffe4e8;
+  --rain-alt: #8b0000;
+  --rain-opacity: 0.4;
+  --scan-line: rgba(30, 0, 4, 0.34);
+  --scan-opacity: 0.95;
+  --vignette: rgba(30, 0, 4, 0.82);
+  --sweep: 2s;
+}
+
+/* Mode: blue pill — the comfortable lie. Calm, soft, dreamy. */
+html[data-theme="blue"] {
+  --bg: #01030c;
+  --bg-2: #020617;
+  --bg-glow: #0b2a5c;
+  --panel: rgba(4, 12, 36, 0.82);
+  --accent: #2979ff;
+  --accent-rgb: 41, 121, 255;
+  --secondary: #80d8ff;
+  --dim: #7a9cd6;
+  --hi: #80d8ff;
+  --text: #d2e6ff;
+  --line: rgba(128, 216, 255, 0.16);
+  --line-strong: rgba(128, 216, 255, 0.38);
+  --glow-sm: 0 0 10px rgba(128, 216, 255, 0.45);
+  --glow-md: 0 0 30px rgba(41, 121, 255, 0.28);
+  --nav-link: var(--dim);
+  --shade-rgb: 2, 6, 23;
+  --term-bg: rgba(2, 8, 26, 0.9);
+  --screen-bg: #030a22;
+  --rain-trail: #2979ff;
+  --rain-head: #80d8ff;
+  --rain-alt: #80d8ff;
+  --rain-opacity: 0.34;
+  --scan-opacity: 0.15;
+  --vignette: rgba(2, 6, 23, 0.45);
+  --radius: 12px;
+  --sweep: 9s;
 }
 
 /* ---------- 1. Base ---------- */
@@ -124,7 +193,7 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--nav-h) + 16px);
   -webkit-text-size-adjust: 100%;
-  scrollbar-color: var(--dim) #000;
+  scrollbar-color: var(--dim) var(--bg);
   scrollbar-width: thin;
 }
 html.booting { overflow: hidden; }
@@ -160,8 +229,8 @@ kbd {
 :focus-visible { outline: 2px solid var(--hi); outline-offset: 3px; }
 
 ::-webkit-scrollbar { width: 10px; }
-::-webkit-scrollbar-track { background: #000; }
-::-webkit-scrollbar-thumb { background: var(--dim); border: 2px solid #000; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--dim); border: 2px solid var(--bg); }
 
 .sr-only {
   position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -179,7 +248,7 @@ kbd {
 
 /* ---------- 2. Background layers ---------- */
 .backdrop {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
   background: radial-gradient(120% 80% at 50% 0%, var(--bg-glow) 0%, var(--bg-2) 45%, var(--bg) 100%);
 }
 
@@ -188,7 +257,7 @@ kbd {
   position: fixed; top: 0; left: 0; z-index: 0;
   width: 100%; height: 100vh; height: 100lvh;
   pointer-events: none;
-  opacity: 0.3;
+  opacity: var(--rain-opacity);
   transition: opacity 1.2s var(--ease);
 }
 html.overload #rain { opacity: 0.72; }
@@ -197,12 +266,12 @@ html.overload #rain { opacity: 0.72; }
 .crt { position: fixed; inset: 0; z-index: 200; pointer-events: none; }
 .crt::before {
   content: ""; position: absolute; inset: 0;
-  background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0, 0, 0, 0.22) 2px 3px);
-  opacity: 0.6;
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, var(--scan-line) 2px 3px);
+  opacity: var(--scan-opacity);
 }
 .crt::after {
   content: ""; position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, transparent 58%, rgba(0, 0, 0, 0.55) 100%);
+  background: radial-gradient(ellipse at 50% 50%, transparent 58%, var(--vignette) 100%);
 }
 .crt__flicker { position: absolute; inset: 0; background: #000; opacity: 0; animation: crt-flicker 9s infinite; }
 .crt__roll {
@@ -237,7 +306,7 @@ html.flash main, html.flash .nav { animation: screen-jolt 0.42s steps(2); }
   position: fixed; inset: 0; z-index: 100;
   display: none; flex-direction: column; justify-content: center;
   padding: clamp(20px, 6vw, 64px);
-  background: #000; color: var(--accent);
+  background: var(--bg); color: var(--accent);
   font-family: var(--font-display);
   transition: opacity 0.55s ease, visibility 0s linear 0.55s;
 }
@@ -286,7 +355,7 @@ html.booting .boot, .boot.is-done { display: flex; }
 .nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 50;
   height: var(--nav-h);
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(var(--shade-rgb), 0.8);
   -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--line);
 }
@@ -307,7 +376,7 @@ html.booting .boot, .boot.is-done { display: flex; }
 .nav__link {
   display: block; padding: 6px 11px;
   font-family: var(--font-display); font-size: 0.95rem; letter-spacing: 0.04em;
-  color: rgba(var(--accent-rgb), 0.75);
+  color: var(--nav-link);
   border: 1px solid transparent;
   transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
@@ -338,7 +407,7 @@ html.booting .boot, .boot.is-done { display: flex; }
     position: fixed; top: var(--nav-h); left: 0; right: 0;
     max-height: calc(100vh - var(--nav-h)); overflow-y: auto;
     padding: 10px var(--gutter) 22px;
-    background: rgba(0, 0, 0, 0.96);
+    background: rgba(var(--shade-rgb), 0.96);
     border-bottom: 1px solid var(--line-strong);
     opacity: 0; visibility: hidden; transform: translateY(-8px);
     transition: opacity 0.25s, transform 0.25s var(--ease), visibility 0s linear 0.25s;
@@ -390,6 +459,7 @@ html.booting .boot, .boot.is-done { display: flex; }
 .panel {
   --c: rgba(var(--accent-rgb), 0.85);
   position: relative;
+  border-radius: var(--radius);
   border: 1px solid var(--line);
   background:
     linear-gradient(var(--c) 0 0) 0 0 / 16px 1px,
@@ -443,6 +513,7 @@ html.booting .boot, .boot.is-done { display: flex; }
 /* Cards: green glow + 3D tilt (tilt angles set by JS via --rx / --ry) */
 .card {
   position: relative; display: flex; flex-direction: column; height: 100%;
+  border-radius: var(--radius);
   padding: clamp(18px, 2.4vw, 26px);
   border: 1px solid var(--line); background: var(--panel);
   transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
@@ -492,7 +563,7 @@ html.booting .boot, .boot.is-done { display: flex; }
 }
 .hero::before { /* darken behind the text for readability over the rain */
   content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(70% 60% at 28% 50%, rgba(0, 0, 0, 0.7), transparent 75%);
+  background: radial-gradient(70% 60% at 28% 50%, rgba(var(--shade-rgb), 0.7), transparent 75%);
 }
 .hero__inner { position: relative; }
 
@@ -500,7 +571,7 @@ html.booting .boot, .boot.is-done { display: flex; }
   display: inline-flex; align-items: center; gap: 10px;
   padding: 6px 12px; margin-bottom: 0;
   font-family: var(--font-display); font-size: 0.8rem; letter-spacing: 0.25em; text-transform: uppercase;
-  color: var(--accent); border: 1px solid var(--line); background: rgba(0, 0, 0, 0.6);
+  color: var(--accent); border: 1px solid var(--line); background: rgba(var(--shade-rgb), 0.6);
 }
 .pulse {
   width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
@@ -683,24 +754,19 @@ html.booting .boot, .boot.is-done { display: flex; }
 .skill-group .tags { margin-top: 16px; }
 
 /* ---------- 9. Projects ---------- */
+/* Four equal cards: 2×2 from 700px up, one column below */
 .projects { display: grid; gap: 22px; grid-template-columns: minmax(0, 1fr); }
-@media (min-width: 700px) {
-  .projects { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .projects > .is-featured { grid-column: span 2; }
-}
-@media (min-width: 1100px) { .projects { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 700px) { .projects { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 .project__content { display: flex; flex-direction: column; flex: 1; }
-.project__layout { display: grid; gap: 22px; flex: 1; }
-@media (min-width: 700px) { .project__layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); } }
 
-/* Fake "title screen" for the featured game */
+/* Stylised preview "screen" at the top of every project card */
 .screen {
   position: relative; overflow: hidden;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  min-height: 210px; padding: 24px; text-align: center;
-  border: 1px solid var(--line-strong);
-  background: radial-gradient(ellipse at 50% 42%, rgba(var(--accent-rgb), 0.16), transparent 62%), #010402;
+  min-height: 190px; margin-bottom: 20px; padding: 22px; text-align: center;
+  border: 1px solid var(--line-strong); border-radius: var(--radius);
+  background: radial-gradient(ellipse at 50% 42%, rgba(var(--accent-rgb), 0.16), transparent 62%), var(--screen-bg);
   font-family: var(--font-display);
 }
 .screen::after {
@@ -708,9 +774,35 @@ html.booting .boot, .boot.is-done { display: flex; }
   background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0, 0, 0, 0.35) 2px 3px);
 }
 .screen__eye { font-size: 2.4rem; line-height: 1; color: var(--accent); text-shadow: 0 0 18px rgba(var(--accent-rgb), 0.9); margin-bottom: 14px; }
-.screen__title { font-size: clamp(1.25rem, 3vw, 1.9rem); letter-spacing: 0.18em; color: var(--hi); text-shadow: 0 0 14px rgba(var(--accent-rgb), 0.7); line-height: 1.2; }
+.screen__title { font-size: clamp(1.2rem, 2.6vw, 1.6rem); letter-spacing: 0.18em; color: var(--hi); text-shadow: 0 0 14px rgba(var(--accent-rgb), 0.7); line-height: 1.2; }
 .screen__sub { margin-top: 6px; font-size: 0.78rem; letter-spacing: 0.5em; color: var(--dim); }
 .screen__start { margin-top: 20px; font-size: 0.8rem; letter-spacing: 0.32em; color: var(--accent); animation: blink 1.3s steps(1) infinite; }
+.screen__label { margin-top: 16px; font-size: 0.8rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--hi); }
+.screen__svg { width: min(100%, 240px); height: auto; color: var(--accent); filter: drop-shadow(0 0 6px rgba(var(--accent-rgb), 0.7)); overflow: visible; }
+
+/* LifeLink: heartbeat trace */
+.ecg-base { opacity: 0.25; }
+.ecg-trace { stroke-dasharray: 60 280; animation: ecg 2.2s linear infinite; }
+@keyframes ecg { from { stroke-dashoffset: 60; } to { stroke-dashoffset: -290; } }
+
+/* Orbit: geofence with an orbiting tracker */
+.geo { position: relative; width: 100px; height: 100px; }
+.geo__ring { position: absolute; inset: 0; border: 1px dashed var(--accent); border-radius: 50%; box-shadow: 0 0 18px rgba(var(--accent-rgb), 0.25); }
+.geo__ring--inner { inset: 28px; border-style: solid; border-color: var(--line-strong); box-shadow: none; }
+.geo__core { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--accent); box-shadow: var(--glow-sm); }
+.geo__kid { position: absolute; inset: 0; animation: orbit 6s linear infinite; }
+.geo__kid::before {
+  content: ""; position: absolute; top: -4px; left: 50%; width: 8px; height: 8px; margin-left: -4px;
+  border-radius: 50%; background: var(--hi); box-shadow: 0 0 10px var(--accent);
+}
+@keyframes orbit { to { transform: rotate(360deg); } }
+
+/* AlgoViz: sorting bars */
+.bars { display: flex; align-items: flex-end; gap: 5px; height: 78px; }
+.bars i { width: 11px; height: var(--h); background: rgba(var(--accent-rgb), 0.35); border-top: 2px solid var(--accent); }
+.bars i.is-cmp { background: var(--accent); box-shadow: var(--glow-sm); animation: cmp 1.2s steps(1) infinite; }
+.bars i.is-sorted { background: rgba(var(--accent-rgb), 0.12); border-top-color: var(--hi); }
+@keyframes cmp { 50% { background: var(--hi); } }
 
 /* ---------- 10. Megalodon Studios ---------- */
 .studio { padding: clamp(22px, 4vw, 48px); }
@@ -745,24 +837,24 @@ html.booting .boot, .boot.is-done { display: flex; }
     linear-gradient(var(--line) 0 0) 50% 0 / 1px 100% no-repeat,
     linear-gradient(var(--line) 0 0) 0 50% / 100% 1px no-repeat,
     radial-gradient(circle, transparent 0 24.5%, var(--line) 25% 25.4%, transparent 26% 49.5%, var(--line) 50% 50.4%, transparent 51% 74.5%, var(--line) 75% 75.4%, transparent 76%),
-    radial-gradient(circle, rgba(var(--accent-rgb), 0.08), rgba(0, 0, 0, 0.85) 70%);
+    radial-gradient(circle, rgba(var(--accent-rgb), 0.08), rgba(var(--shade-rgb), 0.85) 70%);
   box-shadow: 0 0 40px rgba(var(--accent-rgb), 0.15), inset 0 0 40px rgba(var(--accent-rgb), 0.12);
 }
 .sonar__sweep {
   position: absolute; inset: 0; border-radius: 50%;
   background: conic-gradient(from 0deg, transparent 0deg 290deg, rgba(var(--accent-rgb), 0.04) 300deg, rgba(var(--accent-rgb), 0.45) 360deg);
-  animation: sweep 4s linear infinite;
+  animation: sweep var(--sweep) linear infinite;
 }
 @keyframes sweep { to { transform: rotate(360deg); } }
 .blip {
   position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%;
   background: var(--hi); box-shadow: 0 0 10px var(--accent);
-  opacity: 0; animation: blip 4s linear infinite;
+  opacity: 0; animation: blip var(--sweep) linear infinite;
 }
-/* Delays are phase-matched to the sweep angle: delay = angle/360 × 4s − 4s */
-.blip--1 { left: 75.98%; top: 35%; animation-delay: -3.333s; }
-.blip--2 { left: 42.48%; top: 70.67%; width: 12px; height: 12px; margin: -6px 0 0 -6px; animation-delay: -1.778s; }
-.blip--3 { left: 16.17%; top: 37.69%; animation-delay: -0.778s; }
+/* Delays are phase-matched to the sweep angle: delay = (angle/360 − 1) × sweep */
+.blip--1 { left: 75.98%; top: 35%; animation-delay: calc(var(--sweep) * -0.8333); }
+.blip--2 { left: 42.48%; top: 70.67%; width: 12px; height: 12px; margin: -6px 0 0 -6px; animation-delay: calc(var(--sweep) * -0.4444); }
+.blip--3 { left: 16.17%; top: 37.69%; animation-delay: calc(var(--sweep) * -0.1944); }
 .blip em {
   position: absolute; left: 16px; top: -6px; white-space: nowrap;
   font-style: normal; font-family: var(--font-display); font-size: 0.7rem; letter-spacing: 0.1em; color: var(--accent);
@@ -809,7 +901,7 @@ html.booting .boot, .boot.is-done { display: flex; }
 
 .terminal {
   border: 1px solid var(--line-strong);
-  background: rgba(0, 5, 1, 0.94);
+  background: var(--term-bg);
   box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.06), 0 0 50px rgba(var(--accent-rgb), 0.12), inset 0 0 60px rgba(var(--accent-rgb), 0.04);
   transition: border-color 0.25s, box-shadow 0.25s;
 }
@@ -827,6 +919,7 @@ html.booting .boot, .boot.is-done { display: flex; }
 .t-dim { color: var(--dim); }
 .t-err { color: var(--hi); }
 .t-err::before { content: "\2717 "; color: var(--accent); }
+.t-typing::after { content: "\2588"; margin-left: 2px; color: var(--accent); animation: blink 0.8s steps(1) infinite; }
 
 .terminal__form { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
 .terminal__prompt { flex-shrink: 0; color: var(--accent); white-space: nowrap; }
@@ -848,6 +941,9 @@ html.booting .boot, .boot.is-done { display: flex; }
 .chip--red:hover, .chip--red:focus-visible { background: #ff3b3b; color: #000; }
 .chip--blue { color: #6aa8ff; border-color: #3d8bff; }
 .chip--blue:hover, .chip--blue:focus-visible { background: #3d8bff; color: #000; }
+.chip--green { color: #00ff41; border-color: #00b32d; }
+.chip--green:hover, .chip--green:focus-visible { background: #00ff41; color: #000; }
+.chip, .tag, .badge, .btn, .social, .terminal, .boot__skip, .toast, .facts div, .nav__toggle { border-radius: var(--radius); }
 
 .contact__side .lead { margin-bottom: 22px; }
 .socials { display: grid; gap: 10px; }
@@ -872,7 +968,7 @@ html.booting .boot, .boot.is-done { display: flex; }
   position: relative; z-index: 1;
   padding: 44px 0 calc(44px + env(safe-area-inset-bottom));
   border-top: 1px solid var(--line);
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.92));
+  background: linear-gradient(to bottom, rgba(var(--shade-rgb), 0.4), rgba(var(--shade-rgb), 0.92));
 }
 .footer__wake {
   min-height: 1.6em; margin-bottom: 18px;
@@ -892,7 +988,7 @@ html.booting .boot, .boot.is-done { display: flex; }
   width: fit-content; max-width: calc(100% - 32px); margin-inline: auto;
   padding: 12px 18px;
   font-family: var(--font-display); letter-spacing: 0.06em; color: var(--accent);
-  background: rgba(0, 0, 0, 0.94); border: 1px solid var(--accent); box-shadow: var(--glow-md);
+  background: rgba(var(--shade-rgb), 0.94); border: 1px solid var(--accent); box-shadow: var(--glow-md);
   opacity: 0; transform: translateY(16px); pointer-events: none;
   transition: opacity 0.3s, transform 0.3s var(--ease);
 }
@@ -909,7 +1005,125 @@ html.booting .boot, .boot.is-done { display: flex; }
 main, .nav, .footer { position: relative; }
 main { z-index: 1; }
 
-/* ---------- 16. Reduced motion: no rain animation, glitch, flicker or slides ---------- */
+/* ---------- 16. Mode effects (data-theme on <html>) ---------- */
+
+/* RED PILL — the truth: harder, more frequent glitch; stronger flicker; alarm glow */
+html[data-theme="red"] .glitch {
+  text-shadow: 0 0 6px rgba(255, 23, 68, 0.8), 0 0 36px rgba(139, 0, 0, 0.7);
+  animation: glitch-skew-hard 2.2s steps(1) infinite;
+}
+html[data-theme="red"] .glitch::before { color: var(--accent); text-shadow: -5px 0 #8b0000; animation: glitch-a-hard 2.2s steps(1) infinite; }
+html[data-theme="red"] .glitch::after { color: #fff; text-shadow: 5px 0 var(--accent); animation: glitch-b-hard 2.2s steps(1) infinite; }
+html[data-theme="red"] .crt__flicker { animation: crt-flicker-hard 2.6s infinite; }
+html[data-theme="red"] .crt__roll {
+  animation-duration: 3.6s;
+  background: linear-gradient(to bottom, transparent, rgba(255, 23, 68, 0.07) 50%, transparent);
+}
+html[data-theme="red"] .backdrop::after { /* slow red alarm pulse */
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(90% 70% at 50% 110%, rgba(139, 0, 0, 0.55), transparent 70%);
+  animation: alarm 2.4s ease-in-out infinite;
+}
+
+@keyframes glitch-a-hard {
+  0%, 5%, 21%, 54%, 69%, 87%, 93%, 100% { clip-path: inset(0 0 100% 0); transform: none; }
+  6% { clip-path: inset(5% 0 70% 0); transform: translate(-14px, -2px); }
+  9% { clip-path: inset(40% 0 30% 0); transform: translate(12px, 1px); }
+  12% { clip-path: inset(72% 0 8% 0); transform: translate(-10px, 0); }
+  15% { clip-path: inset(15% 0 55% 0); transform: translate(16px, 2px); }
+  18% { clip-path: inset(55% 0 20% 0); transform: translate(-8px, 0); }
+  55% { clip-path: inset(30% 0 50% 0); transform: translate(14px, 0); }
+  59% { clip-path: inset(80% 0 2% 0); transform: translate(-16px, 1px); }
+  63% { clip-path: inset(0 0 75% 0); transform: translate(10px, -1px); }
+  66% { clip-path: inset(45% 0 35% 0); transform: translate(-12px, 0); }
+  88% { clip-path: inset(60% 0 25% 0); transform: translate(18px, 0); }
+  90% { clip-path: inset(10% 0 80% 0); transform: translate(-18px, 0); }
+}
+@keyframes glitch-b-hard {
+  0%, 7%, 22%, 56%, 70%, 89%, 94%, 100% { clip-path: inset(100% 0 0 0); transform: none; }
+  8% { clip-path: inset(62% 0 18% 0); transform: translate(13px, 1px); }
+  11% { clip-path: inset(10% 0 68% 0); transform: translate(-15px, 0); }
+  14% { clip-path: inset(36% 0 44% 0); transform: translate(9px, -2px); }
+  17% { clip-path: inset(84% 0 0 0); transform: translate(-12px, 0); }
+  57% { clip-path: inset(20% 0 62% 0); transform: translate(-14px, 0); }
+  61% { clip-path: inset(50% 0 28% 0); transform: translate(16px, 1px); }
+  65% { clip-path: inset(6% 0 82% 0); transform: translate(-9px, 0); }
+  90% { clip-path: inset(70% 0 10% 0); transform: translate(-17px, 0); }
+}
+@keyframes glitch-skew-hard {
+  0%, 5%, 21%, 54%, 69%, 87%, 93%, 100% { transform: none; }
+  6% { transform: skewX(-12deg) translateX(-4px); }
+  10% { transform: skewX(9deg) translateX(3px); }
+  14% { transform: skewX(-6deg); }
+  18% { transform: skewX(4deg) translateX(-2px); }
+  56% { transform: skewX(10deg) translateX(4px); }
+  62% { transform: skewX(-8deg); }
+  66% { transform: skewX(3deg); }
+  88% { transform: skewX(-14deg) translateX(-5px); }
+}
+@keyframes crt-flicker-hard {
+  0%, 100% { opacity: 0; }
+  8% { opacity: 0.12; } 10% { opacity: 0; }
+  31% { opacity: 0.06; } 33% { opacity: 0.15; } 35% { opacity: 0; }
+  62% { opacity: 0.1; } 63% { opacity: 0; } 64% { opacity: 0.17; } 66% { opacity: 0; }
+  85% { opacity: 0.05; } 87% { opacity: 0; }
+}
+@keyframes alarm { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.85; } }
+
+/* BLUE PILL — the comfortable lie: no glitch, no flicker, faint scanlines, floating cards, soft glow */
+html[data-theme="blue"] .glitch { animation: breathe 5s ease-in-out infinite; }
+html[data-theme="blue"] .glitch::before, html[data-theme="blue"] .glitch::after { display: none; }
+html[data-theme="blue"] .crt__flicker, html[data-theme="blue"] .crt__roll { display: none; }
+html[data-theme="blue"] .panel { --c: transparent; } /* soft rounded panels, no HUD brackets */
+html[data-theme="blue"] .cursor { border-radius: 2px; animation: blink-soft 2.4s ease-in-out infinite; }
+html[data-theme="blue"] .screen__start, html[data-theme="blue"] .bars i.is-cmp { animation: blink-soft 3s ease-in-out infinite; }
+html[data-theme="blue"] .card { animation: float 7s ease-in-out infinite; }
+html[data-theme="blue"] li:nth-child(2n) > .card { animation-delay: -2.4s; }
+html[data-theme="blue"] li:nth-child(3n) > .card { animation-delay: -4.7s; }
+html[data-theme="blue"] .backdrop::after { /* slow drifting aurora (transform only, so it stays on the compositor) */
+  content: ""; position: absolute; inset: -20%;
+  background:
+    radial-gradient(38% 30% at 28% 30%, rgba(128, 216, 255, 0.1), transparent 70%),
+    radial-gradient(34% 28% at 72% 68%, rgba(41, 121, 255, 0.13), transparent 70%);
+  animation: aurora 26s ease-in-out infinite alternate;
+}
+@keyframes breathe {
+  0%, 100% { text-shadow: 0 0 8px rgba(128, 216, 255, 0.35), 0 0 30px rgba(41, 121, 255, 0.25); }
+  50% { text-shadow: 0 0 16px rgba(128, 216, 255, 0.6), 0 0 56px rgba(41, 121, 255, 0.45); }
+}
+@keyframes blink-soft { 50% { opacity: 0.15; } }
+@keyframes float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+@keyframes aurora { to { transform: translate(6%, -4%) rotate(8deg) scale(1.08); } }
+
+/* Mode transitions: red = system breach (flash + shake), blue = soft dream fade, green = digital flash (above) */
+.breach {
+  position: fixed; inset: 0; z-index: 190; pointer-events: none;
+  display: none; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  padding: 24px; text-align: center;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 23, 68, 0.4), rgba(139, 0, 0, 0.6) 55%, rgba(10, 0, 2, 0.85));
+}
+html.breaching .breach { display: flex; animation: breach-flash 0.6s steps(6) forwards; }
+html.breaching main, html.breaching .nav, html.breaching .footer { animation: breach-shake 0.6s linear; }
+.breach__text {
+  margin: 0; font-family: var(--font-display); font-size: clamp(2rem, 9vw, 6rem); letter-spacing: 0.18em;
+  color: #fff; text-shadow: -5px 0 #ff1744, 5px 0 #8b0000, 0 0 30px #ff1744;
+}
+.breach__sub { margin: 0; font-family: var(--font-display); font-size: clamp(0.8rem, 2.4vw, 1rem); letter-spacing: 0.3em; text-transform: uppercase; color: #ffe4e8; }
+@keyframes breach-flash { 0% { opacity: 1; } 16% { opacity: 0.35; } 33% { opacity: 1; } 50% { opacity: 0.55; } 66% { opacity: 0.9; } 100% { opacity: 0; } }
+@keyframes breach-shake {
+  0%, 100% { transform: none; }
+  10% { transform: translate(-9px, 4px); } 20% { transform: translate(8px, -5px); }
+  30% { transform: translate(-7px, -3px); } 40% { transform: translate(7px, 5px); }
+  50% { transform: translate(-5px, 2px); } 60% { transform: translate(5px, -3px); }
+  70% { transform: translate(-3px, 1px); } 80% { transform: translate(2px, -1px); } 90% { transform: translate(-1px, 0); }
+}
+html.dreaming .crt__flash {
+  background: radial-gradient(circle at 50% 40%, rgba(128, 216, 255, 0.3), rgba(2, 6, 23, 0.6) 75%);
+  animation: dream-fade 1.4s ease-out;
+}
+@keyframes dream-fade { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ---------- 17. Reduced motion: no rain animation, glitch, flicker, shake, flash or float ---------- */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
@@ -920,7 +1134,8 @@ main { z-index: 1; }
   }
   .glitch, .glitch::before, .glitch::after { animation: none !important; }
   .glitch::before, .glitch::after { display: none; }
-  .crt__flicker, .crt__roll, .crt__flash { display: none; }
+  .crt__flicker, .crt__roll, .crt__flash, .breach { display: none !important; }
+  .card, .backdrop::after, .ecg-trace, .geo__kid, .bars i { animation: none !important; }
   .cursor, .screen__start, .boot__line.is-active .boot__text::after { animation: none !important; }
   .sonar__sweep { animation: none !important; transform: rotate(62deg); }
   .blip { animation: none !important; opacity: 0.85; }
@@ -958,7 +1173,7 @@ main { z-index: 1; }
 <header class="nav">
   <div class="container nav__inner">
     <a class="nav__brand" href="#home" aria-label="Varun — back to top">
-      <span class="host">varun</span><span class="at">@</span><span class="host">portfolio</span><span class="sym">:</span><span class="path">~<span id="nav-path"></span></span><span class="sym">$</span><span class="cursor" aria-hidden="true"></span>
+      <span class="host" id="nav-user">varun</span><span class="at">@</span><span class="host" id="nav-host">portfolio</span><span class="sym">:</span><span class="path">~<span id="nav-path"></span></span><span class="sym" id="nav-sym">$</span><span class="cursor" aria-hidden="true"></span>
     </a>
     <button type="button" class="nav__toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Open menu">
       <span></span><span></span><span></span>
@@ -981,7 +1196,7 @@ main { z-index: 1; }
   <!-- ======================= HERO ======================= -->
   <section id="home" class="hero" aria-labelledby="hero-name">
     <div class="container hero__inner">
-      <p class="hero__kicker reveal"><span class="pulse" aria-hidden="true"></span> System online · Bengaluru, IN</p>
+      <p class="hero__kicker reveal"><span class="pulse" aria-hidden="true"></span> <span id="kicker-text">System online · Bengaluru, IN</span></p>
 
       <!-- TODO: add your surname here (and in data-text) if you want it in the hero -->
       <h1 id="hero-name" class="hero__name glitch reveal" data-text="Varun" style="--d: 90ms">Varun</h1>
@@ -1001,8 +1216,8 @@ main { z-index: 1; }
 
       <ul class="hero__meta reveal" role="list" style="--d: 420ms">
         <li><strong>Top 500</strong><span>of 4,595 teams · Omnikon 2026</span></li>
-        <li><strong>SIH 2026</strong><span>Smart India Hackathon builder</span></li>
         <li><strong>2 live</strong><span>on Roblox &amp; Google Play</span></li>
+        <li><strong>Founder</strong><span>Megalodon Studios</span></li>
       </ul>
     </div>
 
@@ -1031,7 +1246,7 @@ main { z-index: 1; }
           <p>I'm a BCA student at <strong>Jain (Deemed-to-be) University</strong> in Bengaluru and a full-stack developer working across <span class="hl">React</span>, <span class="hl">Node.js</span>, <span class="hl">Python Flask</span>, <span class="hl">PostgreSQL</span> and <span class="hl">Docker</span>. I like owning the whole stack: the schema, the API, the pixels and the deploy.</p>
           <p>Games have always been the constant. I founded <strong>Megalodon Studios</strong> to build atmospheric worlds people remember, and I spend my spare cycles on animation, design and high-performance computing — because a dropped frame is a bug, not a vibe.</p>
           <!-- TODO: adjust this availability line to what you're looking for -->
-          <p>Hackathons keep me sharp: top 500 of 4,595 teams at Omnikon 2026 and a Smart India Hackathon 2026 build. I'm open to internships, freelance work and ambitious collaborations.</p>
+          <p>Hackathons keep me sharp: I made the top 500 of 4,595 teams at the Omnikon National Hackathon 2026. I'm open to internships, freelance work and ambitious collaborations.</p>
           <!-- TODO (optional): add a portrait, e.g.
           <img src="varun.jpg" alt="Portrait of Varun" width="160" height="160" loading="lazy"> -->
         </div>
@@ -1151,33 +1366,30 @@ main { z-index: 1; }
       <header class="section-head reveal">
         <p class="section-kicker"><span aria-hidden="true">//</span> 03 — ls ./projects</p>
         <h2 id="projects-title" class="section-title" data-decrypt>Projects</h2>
-        <p class="section-intro">Shipped, published, and battle-tested at national hackathons.</p>
+        <p class="section-intro">Shipped, published, and battle-tested under hackathon pressure.</p>
       </header>
 
+      <!-- TODO (optional): each .screen is a stylised preview; swap any of them for a real screenshot, e.g.
+           <img src="lifelink.png" alt="LifeLink app showing nearby donors on a map" loading="lazy"> -->
       <ul class="projects" role="list">
-        <!-- Featured -->
-        <li class="reveal is-featured">
+        <li class="reveal">
           <article class="card tilt" aria-labelledby="p-kc">
             <div class="card__bar"><span class="card__path">~/projects/kalabhairvas-curse</span><span class="badge">Published</span></div>
-            <div class="project__layout">
-              <!-- TODO (optional): swap this fake title screen for a real screenshot:
-              <img src="kalabhairvas-curse.jpg" alt="Kalabhairva's Curse gameplay screenshot" loading="lazy"> -->
-              <div class="screen" aria-hidden="true">
-                <span class="screen__eye">&#9673;</span>
-                <span class="screen__title">KALABHAIRVA'S<br>CURSE</span>
-                <span class="screen__sub">a megalodon studios game</span>
-                <span class="screen__start">&#9654; press start</span>
-              </div>
-              <div class="project__content">
-                <h3 id="p-kc" class="card__title">Kalabhairva's Curse</h3>
-                <p class="card__desc">A published Roblox horror game built on dread: atmospheric lighting, tense sound and scripted scares that hit when you least expect them. Designed, scripted and shipped under Megalodon Studios.</p>
-                <ul class="tags" role="list" aria-label="Tech stack">
-                  <li class="tag">Roblox Studio</li><li class="tag">Luau</li><li class="tag">game design</li><li class="tag">horror</li>
-                </ul>
-                <div class="card__links">
-                  <a class="tlink" href="#" target="_blank" rel="noopener noreferrer">Play live<span class="sr-only">: Kalabhairva's Curse on Roblox</span> <span aria-hidden="true">&#8599;</span></a>
-                  <a class="tlink" href="#" target="_blank" rel="noopener noreferrer">Code<span class="sr-only">: Kalabhairva's Curse</span> <span aria-hidden="true">&lt;/&gt;</span></a>
-                </div>
+            <div class="screen" aria-hidden="true">
+              <span class="screen__eye">&#9673;</span>
+              <span class="screen__title">KALABHAIRVA'S<br>CURSE</span>
+              <span class="screen__sub">a megalodon studios game</span>
+              <span class="screen__start">&#9654; press start</span>
+            </div>
+            <div class="project__content">
+              <h3 id="p-kc" class="card__title">Kalabhairva's Curse</h3>
+              <p class="card__desc">A published Roblox horror game built on dread: atmospheric lighting, tense sound and scripted scares that hit when you least expect them. Designed, scripted and shipped under Megalodon Studios.</p>
+              <ul class="tags" role="list" aria-label="Tech stack">
+                <li class="tag">Roblox Studio</li><li class="tag">Luau</li><li class="tag">game design</li><li class="tag">horror</li>
+              </ul>
+              <div class="card__links">
+                <a class="tlink" href="#" target="_blank" rel="noopener noreferrer">Play live<span class="sr-only">: Kalabhairva's Curse on Roblox</span> <span aria-hidden="true">&#8599;</span></a>
+                <a class="tlink" href="#" target="_blank" rel="noopener noreferrer">Code<span class="sr-only">: Kalabhairva's Curse</span> <span aria-hidden="true">&lt;/&gt;</span></a>
               </div>
             </div>
           </article>
@@ -1186,6 +1398,14 @@ main { z-index: 1; }
         <li class="reveal" style="--d: 90ms">
           <article class="card tilt" aria-labelledby="p-ll">
             <div class="card__bar"><span class="card__path">~/projects/lifelink</span><span class="badge">Live · Play</span></div>
+            <div class="screen" aria-hidden="true">
+              <svg class="screen__svg" viewBox="0 0 200 60" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" focusable="false">
+                <polyline class="ecg-base" points="0,34 62,34 70,12 80,54 90,22 98,38 106,34 200,34"/>
+                <polyline class="ecg-trace" points="0,34 62,34 70,12 80,54 90,22 98,38 106,34 200,34"/>
+              </svg>
+              <span class="screen__label">donor found · 1.2 km</span>
+              <span class="screen__start">&#9679; live on google play</span>
+            </div>
             <div class="project__content">
               <h3 id="p-ll" class="card__title">LifeLink</h3>
               <p class="card__desc">A real-time GPS blood donor network for Android that connects people who need blood with nearby donors in seconds. Live on Google Play.</p>
@@ -1203,6 +1423,11 @@ main { z-index: 1; }
         <li class="reveal">
           <article class="card tilt" aria-labelledby="p-orbit">
             <div class="card__bar"><span class="card__path">~/projects/orbit</span><span class="badge">Top 500 / 4,595</span></div>
+            <div class="screen" aria-hidden="true">
+              <span class="geo"><span class="geo__ring"></span><span class="geo__ring geo__ring--inner"></span><span class="geo__core"></span><span class="geo__kid"></span></span>
+              <span class="screen__label">safe zone · radius 50 m</span>
+              <span class="screen__start">&#9679; geofence armed</span>
+            </div>
             <div class="project__content">
               <h3 id="p-orbit" class="card__title">Orbit</h3>
               <p class="card__desc">Child safety for crowded places: geofenced safe zones alert parents the moment a child drifts out of range. Top 500 of 4,595 teams at Omnikon National Hackathon 2026.</p>
@@ -1218,25 +1443,15 @@ main { z-index: 1; }
         </li>
 
         <li class="reveal" style="--d: 90ms">
-          <article class="card tilt" aria-labelledby="p-nk">
-            <div class="card__bar"><span class="card__path">~/projects/nirikshan-ai</span><span class="badge">SIH 2026</span></div>
-            <div class="project__content">
-              <h3 id="p-nk" class="card__title">NIRIKSHAN AI</h3>
-              <p class="card__desc">Smart India Hackathon 2026 project: AI-based predictive infrastructure health intelligence that flags structural risk before it turns into failure.</p>
-              <ul class="tags" role="list" aria-label="Tech stack">
-                <li class="tag">Python</li><li class="tag">machine learning</li><li class="tag">Flask</li><li class="tag">predictive analytics</li>
-              </ul>
-              <div class="card__links">
-                <a class="tlink" href="#" target="_blank" rel="noopener noreferrer">Live<span class="sr-only">: NIRIKSHAN AI</span> <span aria-hidden="true">&#8599;</span></a>
-                <a class="tlink" href="#" target="_blank" rel="noopener noreferrer">Code<span class="sr-only">: NIRIKSHAN AI</span> <span aria-hidden="true">&lt;/&gt;</span></a>
-              </div>
-            </div>
-          </article>
-        </li>
-
-        <li class="reveal" style="--d: 180ms">
           <article class="card tilt" aria-labelledby="p-av">
             <div class="card__bar"><span class="card__path">~/projects/algoviz</span><span class="badge">Interactive</span></div>
+            <div class="screen" aria-hidden="true">
+              <span class="bars">
+                <i class="is-sorted" style="--h: 18%"></i><i class="is-sorted" style="--h: 30%"></i><i class="is-sorted" style="--h: 38%"></i><i style="--h: 82%"></i><i class="is-cmp" style="--h: 56%"></i><i style="--h: 94%"></i><i class="is-cmp" style="--h: 44%"></i><i style="--h: 70%"></i><i style="--h: 62%"></i><i style="--h: 100%"></i><i style="--h: 50%"></i><i style="--h: 76%"></i>
+              </span>
+              <span class="screen__label">quicksort · step 12 / 48</span>
+              <span class="screen__start">&#9654; run</span>
+            </div>
             <div class="project__content">
               <h3 id="p-av" class="card__title">AlgoViz</h3>
               <p class="card__desc">An interactive algorithm visualizer: watch sorting, searching and pathfinding run step by step, with controls for speed and input.</p>
@@ -1379,7 +1594,7 @@ main { z-index: 1; }
       <div class="contact__grid">
         <!-- Interactive terminal -->
         <div class="terminal reveal" role="region" aria-label="Interactive terminal">
-          <div class="term-head"><span class="term-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>guest@varun: ~/contact — bash</span></div>
+          <div class="term-head"><span class="term-dots" aria-hidden="true"><i></i><i></i><i></i></span><span id="term-title">guest@varun: ~/contact — bash</span></div>
           <div class="terminal__screen" id="term-screen">
             <div id="term-output" role="log" aria-live="polite" aria-label="Terminal output">
               <p class="t-line t-dim">VARUN-OS v26.10 (tty1) — secure channel established.</p>
@@ -1398,6 +1613,7 @@ main { z-index: 1; }
             <button type="button" class="chip" data-cmd="contact">contact</button>
             <button type="button" class="chip chip--red" data-cmd="red pill">red pill</button>
             <button type="button" class="chip chip--blue" data-cmd="blue pill">blue pill</button>
+            <button type="button" class="chip chip--green" data-cmd="matrix">matrix</button>
             <button type="button" class="chip" data-cmd="clear">clear</button>
           </div>
           <p id="term-hint" class="sr-only">Type a command and press Enter. Use the up and down arrow keys to browse history. Try help.</p>
@@ -1440,7 +1656,7 @@ main { z-index: 1; }
               </a>
             </li>
           </ul>
-          <p class="contact__hint">Tip: the terminal takes commands. Try <kbd>help</kbd>, <kbd>sudo</kbd> or <kbd>red pill</kbd>.</p>
+          <p class="contact__hint">Tip: the terminal takes commands. Try <kbd>red pill</kbd>, <kbd>blue pill</kbd> or <kbd>matrix</kbd> to switch realities.</p>
         </div>
       </div>
     </div>
@@ -1461,6 +1677,7 @@ main { z-index: 1; }
 
 <!-- Toast + CRT overlay -->
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div class="breach" aria-hidden="true"><p class="breach__text">SYSTEM BREACH</p><p class="breach__sub">reality.exe has stopped responding</p></div>
 <div class="crt" aria-hidden="true"><div class="crt__roll"></div><div class="crt__flicker"></div><div class="crt__flash"></div></div>
 
 <script>
@@ -1504,43 +1721,100 @@ main { z-index: 1; }
     };
   })();
 
-  /* Brief full-screen flash + jolt (theme switch, Konami) */
-  let flashTimer = 0;
-  function flash() {
+  /* Full-screen transition effects, driven by classes on <html>:
+     flash = digital flash + jolt (matrix, Konami) · breaching = red pill · dreaming = blue pill */
+  let fxTimer = 0;
+  function fx(cls, ms) {
     if (reduced()) return;
-    root.classList.remove('flash');
-    void root.offsetWidth; // restart the CSS animation
-    root.classList.add('flash');
-    clearTimeout(flashTimer);
-    flashTimer = setTimeout(() => root.classList.remove('flash'), 750);
+    root.classList.remove('flash', 'breaching', 'dreaming');
+    void root.offsetWidth; // restart the CSS animations
+    root.classList.add(cls);
+    clearTimeout(fxTimer);
+    fxTimer = setTimeout(() => root.classList.remove(cls), ms);
   }
 
-  /* ---------- 1. Matrix rain ---------- */
+  /* ---------- 1. Matrix rain (one engine, three modes) ---------- */
   const Rain = (() => {
     const canvas = $('#rain');
     const ctx = canvas.getContext('2d');
-    const noop = { setPalette() {}, burst() { return false; } };
-    if (!ctx) return noop;
+    if (!ctx) return { setMode() {}, burst() { return false; } };
 
-    // Half-width katakana (U+FF66–U+FF9D) + digits (weighted a little heavier)
-    const GLYPHS = [];
-    for (let c = 0xff66; c <= 0xff9d; c++) GLYPHS.push(String.fromCharCode(c));
-    GLYPHS.push(...'01234567890123456789');
-    const glyph = () => GLYPHS[(Math.random() * GLYPHS.length) | 0];
+    const KATAKANA = [];
+    for (let c = 0xff66; c <= 0xff9d; c++) KATAKANA.push(String.fromCharCode(c));
+
+    // Per-mode behaviour. density = drops per column · respawn = chance per frame that an off-screen drop restarts
+    // upward = share of drops that fall up · roam = respawn in a random column · glow = shadowBlur
+    // alt = share of trail glyphs drawn in --rain-alt
+    const MODES = {
+      green: { // classic: katakana + digits, steady speed, long sharp trails
+        glyphs: KATAKANA.concat(Array.from('01234567890123456789')),
+        font: '"Fira Code", "MS Gothic", "Hiragino Kaku Gothic ProN", "Noto Sans JP", monospace',
+        size: 16, sizeSmall: 14, speed: [0.45, 1.05], fade: 0.08,
+        density: 1, respawn: 0.025, upward: 0, roam: false, glow: 0, alt: 0
+      },
+      red: { // the truth: binary + hex, fast, dense, a few columns fall upward
+        glyphs: Array.from('0000111110AF39'),
+        font: '"Fira Code", monospace',
+        size: 15, sizeSmall: 13, speed: [0.95, 2.1], fade: 0.1,
+        density: 1.8, respawn: 0.1, upward: 0.12, roam: true, glow: 0, alt: 0.35
+      },
+      blue: { // the lie: slow, sparse, soft glowing dots with short trails
+        glyphs: Array.from('·····○○○◦◦◦∘∘0123456789'),
+        font: '"Fira Code", monospace',
+        size: 20, sizeSmall: 17, speed: [0.12, 0.32], fade: 0.12,
+        density: 0.45, respawn: 0.012, upward: 0, roam: true, glow: 12, alt: 0.4
+      }
+    };
 
     const FRAME_MS = 1000 / 30;   // capped at 30fps — plenty for rain, kind to batteries
-    const FADE = 0.08;            // trail fade per frame
     const MAX_DPR = 2;
 
+    let mode = MODES[root.dataset.theme] || MODES.green;
+    let colors = readColors();
     let w = 0, h = 0, dpr = 1, size = 16, cols = 0, rows = 0;
     let drops = [];
     let raf = 0, last = 0, running = false;
     let speedMult = 1, bursting = false, burstTimer = 0, resizeTimer = 0;
-    let colors = { trail: '#00ff41', head: '#e2ffe6' };
+
+    function readColors() {
+      const cs = getComputedStyle(root);
+      const get = (name, fallback) => cs.getPropertyValue(name).trim() || fallback;
+      return { trail: get('--rain-trail', '#00ff41'), head: get('--rain-head', '#e2ffe6'), alt: get('--rain-alt', '#008f11') };
+    }
+    const glyph = () => mode.glyphs[(Math.random() * mode.glyphs.length) | 0];
+    const trailColor = () => (mode.alt && Math.random() < mode.alt ? colors.alt : colors.trail);
+    // Upward columns are an animation flourish only: never with reduced motion
+    const pickDir = () => (mode.upward && !reduced() && Math.random() < mode.upward ? -1 : 1);
 
     function makeDrop(col, scatter, extra = false) {
-      const y = scatter ? rand(-rows, rows) : rand(-rows * 0.8, 0);
-      return { col, y, row: Math.floor(y), speed: rand(0.45, 1.05), ch: glyph(), extra };
+      const dir = pickDir();
+      let y;
+      if (dir === 1) y = scatter ? rand(-rows, rows) : rand(-rows * 0.8, 0);
+      else y = scatter ? rand(0, rows * 2) : rows + rand(0, rows * 0.8);
+      return { col, y, row: Math.floor(y), dir, speed: rand(mode.speed[0], mode.speed[1]), ch: glyph(), extra };
+    }
+
+    function respawn(d) {
+      if (mode.roam) d.col = (Math.random() * cols) | 0;
+      d.dir = pickDir();
+      d.y = d.dir === 1 ? rand(-24, 0) : rows + rand(0, 24);
+      d.row = Math.floor(d.y);
+      d.speed = rand(mode.speed[0], mode.speed[1]);
+    }
+
+    // Font, grid and a fresh set of drops for the current mode and size
+    function layout() {
+      size = w < 600 ? mode.sizeSmall : mode.size;
+      cols = Math.ceil(w / size);
+      rows = Math.ceil(h / size);
+      ctx.font = `${size}px ${mode.font}`;
+      ctx.textBaseline = 'top';
+      const count = Math.max(1, Math.round(cols * mode.density));
+      drops = [];
+      for (let i = 0; i < count; i++) {
+        const col = mode.density >= 1 && i < cols ? i : (Math.random() * cols) | 0;
+        drops.push(makeDrop(col, true));
+      }
     }
 
     function resize() {
@@ -1548,31 +1822,25 @@ main { z-index: 1; }
       const nd = Math.min(window.devicePixelRatio || 1, MAX_DPR);
       if (cw === w && ch === h && nd === dpr) return;
       w = cw; h = ch; dpr = nd;
-      canvas.width = Math.round(w * dpr);
+      canvas.width = Math.round(w * dpr); // resizing clears the canvas and resets context state
       canvas.height = Math.round(h * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // resizing resets context state, so re-apply everything
-      size = w < 600 ? 14 : 16;
-      ctx.font = `${size}px "Fira Code", "MS Gothic", "Hiragino Kaku Gothic ProN", "Noto Sans JP", monospace`;
-      ctx.textBaseline = 'top';
-      cols = Math.ceil(w / size);
-      rows = Math.ceil(h / size);
-      // Keep existing columns, add or drop the rest
-      drops = drops.filter((d) => d.col < cols);
-      const have = new Set(drops.filter((d) => !d.extra).map((d) => d.col));
-      for (let c = 0; c < cols; c++) if (!have.has(c)) drops.push(makeDrop(c, true));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      layout();
       if (reduced()) drawStatic();
     }
 
     function tick() {
-      // Fade the whole canvas toward transparent to leave trails
+      // Fade everything toward transparent to leave trails
+      ctx.shadowBlur = 0;
       ctx.globalCompositeOperation = 'destination-out';
-      ctx.fillStyle = `rgba(0,0,0,${FADE})`;
+      ctx.fillStyle = `rgba(0,0,0,${mode.fade})`;
       ctx.fillRect(0, 0, w, h);
       ctx.globalCompositeOperation = 'source-over';
+      if (mode.glow) { ctx.shadowBlur = mode.glow; ctx.shadowColor = colors.head; }
 
       for (let i = drops.length - 1; i >= 0; i--) {
         const d = drops[i];
-        d.y += d.speed * speedMult;
+        d.y += d.speed * speedMult * d.dir;
         const row = Math.floor(d.y);
 
         if (row !== d.row) {
@@ -1580,12 +1848,14 @@ main { z-index: 1; }
           // Old head becomes a normal trail glyph
           if (d.row >= 0 && d.row < rows) {
             ctx.clearRect(x, d.row * size, size, size);
-            ctx.fillStyle = colors.trail;
+            ctx.fillStyle = trailColor();
             ctx.fillText(d.ch, x, d.row * size);
           }
           // Fill rows skipped by fast drops so trails stay continuous
-          ctx.fillStyle = colors.trail;
-          for (let r = Math.max(0, d.row + 1); r < row && r < rows; r++) ctx.fillText(glyph(), x, r * size);
+          if (Math.abs(row - d.row) < 12) {
+            ctx.fillStyle = colors.trail;
+            for (let r = d.row + d.dir; r !== row; r += d.dir) if (r >= 0 && r < rows) ctx.fillText(glyph(), x, r * size);
+          }
           // New, brighter head
           d.ch = glyph();
           d.row = row;
@@ -1595,19 +1865,18 @@ main { z-index: 1; }
           }
         }
 
-        if (d.row >= rows) {
+        const gone = d.dir === 1 ? d.row >= rows : d.row < 0;
+        if (gone) {
           if (d.extra && !bursting) { drops.splice(i, 1); continue; }
-          if (Math.random() > 0.975) { // stagger respawns
-            d.y = rand(-24, 0);
-            d.row = Math.floor(d.y);
-            d.speed = rand(0.45, 1.05);
-          }
+          if (Math.random() < mode.respawn) respawn(d);
         }
       }
+      ctx.shadowBlur = 0;
     }
 
-    // Reduced-motion fallback: a static, faint grid with scattered glyphs
+    // Reduced-motion fallback: a static, faint grid with scattered glyphs from the current mode
     function drawStatic() {
+      ctx.shadowBlur = 0;
       ctx.clearRect(0, 0, w, h);
       const step = size * 2;
       ctx.strokeStyle = colors.trail;
@@ -1644,9 +1913,13 @@ main { z-index: 1; }
       raf = 0;
     }
 
-    function setPalette(trail, head) {
-      if (trail) colors.trail = trail;
-      if (head) colors.head = head;
+    // Switch rain style; colours come from the CSS variables of the active data-theme
+    function setMode(name) {
+      mode = MODES[name] || MODES.green;
+      colors = readColors();
+      if (!w) return;
+      ctx.clearRect(0, 0, w, h);
+      layout();
       if (reduced()) drawStatic();
     }
 
@@ -1655,7 +1928,7 @@ main { z-index: 1; }
       if (reduced()) return false;
       bursting = true;
       speedMult = 2.3;
-      if (drops.length < cols * 4) {
+      if (drops.length < cols * 5) {
         for (let c = 0; c < cols; c++) {
           drops.push(makeDrop(c, false, true));
           if (Math.random() < 0.6) drops.push(makeDrop(c, false, true));
@@ -1680,26 +1953,63 @@ main { z-index: 1; }
     doc.addEventListener('visibilitychange', () => (doc.hidden ? stop() : start()));
     onMQChange(motionMQ, () => {
       if (reduced()) { stop(); drawStatic(); }
-      else { ctx.clearRect(0, 0, w, h); start(); }
+      else { ctx.clearRect(0, 0, w, h); layout(); start(); }
     });
     if (reduced()) drawStatic(); else start();
 
-    return { setPalette, burst };
+    return { setMode, burst };
   })();
 
-  /* ---------- 2. Theme: red pill / blue pill ---------- */
+  /* ---------- 2. Theme: matrix (green) / red pill / blue pill ---------- */
+  // Colours and CSS effects live in html[data-theme] variables; this holds everything else that changes per mode.
   const Theme = (() => {
+    const THEMES = {
+      green: {
+        meta: '#020b05', fx: ['flash', 750],
+        nav: { user: 'varun', host: 'portfolio', sym: '$' },
+        term: { user: 'guest', host: 'varun', sym: '$' },
+        kicker: 'System online · Bengaluru, IN',
+        whoami: "guest — but you're here for a reason."
+      },
+      red: {
+        meta: '#0d0103', fx: ['breaching', 650],
+        nav: { user: 'neo', host: 'zion', sym: '#' },
+        term: { user: 'neo', host: 'zion', sym: '#' },
+        kicker: 'Breach detected · Bengaluru, IN',
+        whoami: 'neo — not the One. Not yet.'
+      },
+      blue: {
+        meta: '#020617', fx: ['dreaming', 1450],
+        nav: { user: 'user', host: 'dreamland', sym: '$' },
+        term: { user: 'user', host: 'dreamland', sym: '$' },
+        kicker: 'All is calm · Bengaluru, IN',
+        whoami: 'user — just a regular user. Nothing unusual here.'
+      }
+    };
     const meta = $('meta[name="theme-color"]');
-    function apply(name) {
-      const red = name === 'red';
-      if (red) root.dataset.theme = 'red'; else delete root.dataset.theme;
-      meta.setAttribute('content', red ? '#0b0202' : '#020b05');
-      const cs = getComputedStyle(root);
-      Rain.setPalette(cs.getPropertyValue('--rain-trail').trim(), cs.getPropertyValue('--rain-head').trim());
-      flash();
+    let current = THEMES[root.dataset.theme] ? root.dataset.theme : 'green';
+
+    function apply(name, { animate = true } = {}) {
+      current = THEMES[name] ? name : 'green';
+      const t = THEMES[current];
+      if (current === 'green') delete root.dataset.theme; else root.dataset.theme = current;
+      meta.setAttribute('content', t.meta);
+      session.set('vp-theme', current);
+      Rain.setMode(current);
+      if (animate) fx(t.fx[0], t.fx[1]);
+      doc.dispatchEvent(new CustomEvent('themechange', { detail: { name: current, ...t } }));
     }
-    return { apply, current: () => (root.dataset.theme === 'red' ? 'red' : 'green') };
+
+    return { apply, current: () => current, info: () => THEMES[current] };
   })();
+
+  // Nav prompt and hero kicker follow the active mode
+  doc.addEventListener('themechange', ({ detail }) => {
+    $('#nav-user').textContent = detail.nav.user;
+    $('#nav-host').textContent = detail.nav.host;
+    $('#nav-sym').textContent = detail.nav.sym;
+    $('#kicker-text').textContent = detail.kicker;
+  });
 
   /* ---------- 3. Boot sequence ---------- */
   const Boot = (() => {
@@ -2005,14 +2315,58 @@ main { z-index: 1; }
       out.append(p);
     }
     const row = (key, val, width = 12) => print([span(key.padEnd(width), 't-ok'), val]);
+    const scrollToEnd = () => { screen.scrollTop = screen.scrollHeight; };
 
-    const SUDO_LINES = [
-      'guest is not in the sudoers file. This incident will be reported.',
+    // Mode-specific prompt: guest@varun:~$ · neo@zion:~# · user@dreamland:~$
+    const promptText = () => { const t = Theme.info().term; return `${t.user}@${t.host}:~${t.sym}`; };
+    const promptEl = $('.terminal__prompt');
+    const titleEl = $('#term-title');
+    doc.addEventListener('themechange', ({ detail }) => {
+      const t = detail.term;
+      promptEl.textContent = `${t.user}@${t.host}:~${t.sym}`;
+      titleEl.textContent = `${t.user}@${t.host}: ~/contact — bash`;
+    });
+
+    // Type a reply out character by character. Screen readers get the full line at once (sr-only copy),
+    // the animated copy is aria-hidden. A new command finishes any reply that is still typing.
+    let typing = null;
+    function typeOut(text, cls, after) {
+      flushTyping();
+      const p = doc.createElement('p');
+      p.className = `t-line ${cls} t-typing`;
+      const vis = doc.createElement('span');
+      vis.setAttribute('aria-hidden', 'true');
+      p.append(span(text, 'sr-only'), vis);
+      out.append(p);
+      let i = 0, timer = 0, done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        vis.textContent = text;
+        p.classList.remove('t-typing');
+        if (typing && typing.finish === finish) typing = null;
+        if (after) after();
+        scrollToEnd();
+      };
+      typing = { finish };
+      if (reduced()) { finish(); return; }
+      (function step() {
+        i++;
+        vis.textContent = text.slice(0, i);
+        scrollToEnd();
+        if (i >= text.length) finish(); else timer = setTimeout(step, 26);
+      })();
+    }
+    function flushTyping() { if (typing) typing.finish(); }
+
+    const sudoLine = (user) => pick([
+      `${user} is not in the sudoers file. This incident will be reported.`,
       'Permission denied. Nice try, Mr. Anderson.',
       'Access denied. The Architect has been notified.',
       'There is no spoon. There is also no root access.',
       'sudo: you need to be The One to do that.'
-    ];
+    ]);
 
     const COMMANDS = {
       help() {
@@ -2025,10 +2379,12 @@ main { z-index: 1; }
           ['contact', 'ways to reach me'],
           ['clear', 'clear the screen'],
           ['sudo', 'try it. I dare you.'],
-          ['red pill', 'see how deep the rabbit hole goes'],
-          ['blue pill', 'go back to sleep (green theme)']
+          ['red pill', 'the truth: unstable red mode'],
+          ['blue pill', 'the comfortable lie: calm blue mode'],
+          ['matrix', 'back to the original green (alias: reset)']
         ].forEach(([k, v]) => row(`  ${k}`, v));
-        print('extras: whoami, ls, date, echo <text>, history, matrix', 't-dim');
+        print('extras: whoami, ls, date, echo <text>, history, konami', 't-dim');
+        print(`current mode: ${Theme.current()}`, 't-dim');
       },
       about() {
         print('Varun — BCA student @ Jain (Deemed-to-be) University, Bengaluru.');
@@ -2049,8 +2405,7 @@ main { z-index: 1; }
           ['[01]', "Kalabhairva's Curse — Roblox horror game (published)"],
           ['[02]', 'LifeLink — real-time GPS blood donor app (Google Play)'],
           ['[03]', 'Orbit — geofenced child safety app (Top 500 / 4,595, Omnikon 2026)'],
-          ['[04]', 'NIRIKSHAN AI — predictive infrastructure health (SIH 2026)'],
-          ['[05]', 'AlgoViz — interactive algorithm visualizer']
+          ['[04]', 'AlgoViz — interactive algorithm visualizer']
         ].forEach(([k, v]) => row(k, v, 6));
         print([link('→ cd ../projects', '#projects')]);
       },
@@ -2067,41 +2422,46 @@ main { z-index: 1; }
       },
       clear() { out.replaceChildren(); },
       sudo() {
-        print('[sudo] password for guest: ********', 't-dim');
-        print(pick(SUDO_LINES), 't-err');
+        const user = Theme.info().term.user;
+        print(`[sudo] password for ${user}: ********`, 't-dim');
+        print(sudoLine(user), 't-err');
       },
       red() {
-        if (Theme.current() === 'red') { print("You've already taken it. There's no going back... (try 'blue pill')", 't-dim'); return; }
-        print('Swallowing red pill...', 't-dim');
-        print('You stay in Wonderland, and I show you how deep the rabbit hole goes.', 't-ok');
         Theme.apply('red');
-        print('[theme] matrix.red loaded', 't-dim');
+        typeOut('Welcome to the real world, Neo. Reality is slower and uglier here.', 't-ok',
+          () => print('[mode] red pill · the truth (unstable)', 't-dim'));
       },
       blue() {
-        if (Theme.current() === 'green') { print("You're already asleep. Believe whatever you want to believe.", 't-dim'); return; }
-        print('The story ends. You wake up in your bed...', 't-ok');
-        Theme.apply('green');
-        print('[theme] matrix.green restored', 't-dim');
+        Theme.apply('blue');
+        typeOut('The story ends. You wake up in your bed and believe whatever you want to believe.', 't-ok',
+          () => print('[mode] blue pill · the comfortable lie', 't-dim'));
       },
-      whoami() { print("guest — but you're here for a reason."); },
+      matrix() {
+        Theme.apply('green');
+        typeOut('Back inside the Matrix. Welcome home.', 't-ok',
+          () => print('[mode] matrix · default', 't-dim'));
+      },
+      whoami() { print(Theme.info().whoami); },
       ls() { print('about.txt  skills.json  projects/  megalodon-studios/  freelance.md  contact.sh'); },
       date() { print(new Date().toString()); },
       echo(args) { print(args || ''); },
       history() { history.forEach((cmd, i) => print(`${String(i + 1).padStart(4)}  ${cmd}`)); },
-      matrix() { print(Konami.trigger() ? 'Rain intensifying...' : 'Motion is reduced on your system; the rain stays calm.', 't-ok'); },
+      konami() { print(Konami.trigger() ? 'Rain intensifying...' : 'Motion is reduced on your system; the rain stays calm.', 't-ok'); },
       exit() { print('There is no exit. Only the Matrix.', 't-dim'); },
       hello() { print('Hello, human.'); }
     };
     const ALIASES = {
       'red pill': 'red', redpill: 'red', 'take red pill': 'red', 'take the red pill': 'red',
       'blue pill': 'blue', bluepill: 'blue', 'take blue pill': 'blue', 'take the blue pill': 'blue',
-      hi: 'hello', konami: 'matrix', cls: 'clear', '?': 'help', man: 'help'
+      reset: 'matrix', green: 'matrix', 'green pill': 'matrix',
+      hi: 'hello', cls: 'clear', '?': 'help', man: 'help'
     };
-    const COMPLETIONS = ['help', 'about', 'skills', 'projects', 'contact', 'clear', 'sudo', 'red pill', 'blue pill', 'whoami', 'ls', 'date', 'echo', 'history', 'matrix'];
+    const COMPLETIONS = ['help', 'about', 'skills', 'projects', 'contact', 'clear', 'sudo', 'red pill', 'blue pill', 'matrix', 'reset', 'whoami', 'ls', 'date', 'echo', 'history', 'konami'];
 
     function run(raw) {
+      flushTyping();
       const cmd = raw.trim().replace(/\s+/g, ' ');
-      print([span('guest@varun:~$ ', 't-prompt'), cmd], 't-cmd');
+      print([span(`${promptText()} `, 't-prompt'), cmd], 't-cmd');
       if (cmd) {
         if (history[history.length - 1] !== cmd) history.push(cmd);
         if (history.length > 50) history.shift();
@@ -2119,7 +2479,7 @@ main { z-index: 1; }
       }
 
       while (out.childElementCount > MAX_LINES) out.firstElementChild.remove();
-      screen.scrollTop = screen.scrollHeight;
+      scrollToEnd();
     }
 
     form.addEventListener('submit', (e) => {
@@ -2148,6 +2508,7 @@ main { z-index: 1; }
         if (match) { e.preventDefault(); input.value = match; }
       } else if (e.key === 'l' && e.ctrlKey) {
         e.preventDefault();
+        flushTyping();
         COMMANDS.clear();
       }
     });
@@ -2170,7 +2531,7 @@ main { z-index: 1; }
 
     function trigger() {
       const ok = Rain.burst();
-      flash();
+      fx('flash', 750);
       Toast.show(ok ? '>> KONAMI ACCEPTED — SYSTEM OVERLOAD' : '>> KONAMI ACCEPTED (motion reduced)');
       return ok;
     }
@@ -2227,6 +2588,7 @@ main { z-index: 1; }
   if (year) year.textContent = String(new Date().getFullYear());
 
   /* ---------- 12. Init ---------- */
+  Theme.apply(Theme.current(), { animate: false }); // restore the mode saved in sessionStorage
   doc.addEventListener('boot:done', () => {
     Reveal.init();
     Typewriter.start();
