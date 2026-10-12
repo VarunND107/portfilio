@@ -1,0 +1,2238 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>Varun — Full-Stack &amp; Game Developer · Megalodon Studios</title>
+<meta name="description" content="Varun is a Bengaluru-based full-stack developer (React, Node.js, Flask, PostgreSQL, Docker) and founder of Megalodon Studios, an independent game studio. Games, animation, high-performance computing and freelance work.">
+<meta name="author" content="Varun">
+<meta name="theme-color" content="#020b05">
+<meta name="color-scheme" content="dark">
+
+<!-- TODO: replace https://example.com/ with your real domain (canonical, og:url, og:image, twitter:image, JSON-LD url) -->
+<link rel="canonical" href="https://example.com/">
+
+<!-- Open Graph / social preview -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Varun — Portfolio">
+<meta property="og:title" content="Varun — Full-Stack &amp; Game Developer">
+<meta property="og:description" content="Full-stack developer, game developer and founder of Megalodon Studios. Based in Bengaluru. Wake up — the portfolio has you.">
+<meta property="og:url" content="https://example.com/">
+<!-- TODO: add a 1200×630 preview image and point og:image / twitter:image at its absolute URL -->
+<meta property="og:image" content="https://example.com/og-image.png">
+<meta property="og:image:alt" content="Varun's Matrix-themed developer portfolio">
+<meta property="og:locale" content="en_IN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Varun — Full-Stack &amp; Game Developer">
+<meta name="twitter:description" content="Full-stack developer, game developer and founder of Megalodon Studios.">
+<meta name="twitter:image" content="https://example.com/og-image.png">
+
+<!-- Inline SVG favicon: green terminal-style "V" with a cursor -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23000'/%3E%3Crect x='2.5' y='2.5' width='59' height='59' rx='10' fill='none' stroke='%2300ff41' stroke-opacity='.55' stroke-width='3'/%3E%3Cpath d='M12 15l14 31 14-31' fill='none' stroke='%2300ff41' stroke-width='7' stroke-linejoin='miter'/%3E%3Crect x='44' y='41' width='10' height='5' fill='%2300ff41'/%3E%3C/svg%3E">
+
+<!-- Fonts (the only external resource) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Share+Tech+Mono&display=swap">
+
+<!-- Structured data for search engines -->
+<!-- TODO: add your profile URLs to "sameAs" (GitHub, LinkedIn, Fiverr) and set "url" -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Varun",
+  "url": "https://example.com/",
+  "jobTitle": "Full-Stack Developer",
+  "description": "Full-stack developer, game developer and founder of Megalodon Studios.",
+  "address": { "@type": "PostalAddress", "addressLocality": "Bengaluru", "addressCountry": "IN" },
+  "alumniOf": { "@type": "CollegeOrUniversity", "name": "Jain (Deemed-to-be) University" },
+  "worksFor": { "@type": "Organization", "name": "Megalodon Studios" },
+  "knowsAbout": ["React", "Node.js", "Python", "Flask", "PostgreSQL", "Docker", "Game development", "Animation", "High-performance computing"],
+  "sameAs": []
+}
+</script>
+
+<!-- Boot gate: runs before first paint so the boot overlay never flashes the site underneath -->
+<script>
+  (function (c) {
+    c.remove('no-js'); c.add('js');
+    try { if (!sessionStorage.getItem('vp-booted')) c.add('booting'); } catch (e) { c.add('booting'); }
+  })(document.documentElement.classList);
+</script>
+
+<style>
+/* ==========================================================================
+   VARUN // PORTFOLIO — Matrix theme
+   0 Tokens · 1 Base · 2 Background layers (backdrop, rain, CRT) · 3 Boot
+   4 Nav · 5 Shared components · 6 Hero · 7 About · 8 Skills · 9 Projects
+   10 Studio · 11 Freelance · 12 Contact + terminal · 13 Footer · 14 Toast
+   15 Reveal · 16 Reduced motion
+   ========================================================================== */
+
+/* ---------- 0. Design tokens ---------- */
+:root {
+  /* Palette: green (default) */
+  --bg: #000;
+  --bg-2: #020b05;
+  --bg-glow: #04210d;
+  --panel: rgba(2, 11, 5, 0.88);
+  --accent: #00ff41;
+  --accent-rgb: 0, 255, 65;
+  --dim: #008f11;
+  --hi: #d4ffd9;
+  --text: #b5f3c1;
+  --rain-trail: #00ff41;
+  --rain-head: #e2ffe6;
+  --line: rgba(var(--accent-rgb), 0.18);
+  --line-strong: rgba(var(--accent-rgb), 0.42);
+  --glow-sm: 0 0 8px rgba(var(--accent-rgb), 0.5);
+  --glow-md: 0 0 22px rgba(var(--accent-rgb), 0.3);
+
+  /* Type */
+  --font-display: "Share Tech Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-body: "Fira Code", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* Layout + motion */
+  --nav-h: 60px;
+  --container: 1180px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Palette: red pill */
+html[data-theme="red"] {
+  --bg-2: #0b0202;
+  --bg-glow: #2a0606;
+  --panel: rgba(12, 2, 2, 0.88);
+  --accent: #ff3333;
+  --accent-rgb: 255, 51, 51;
+  --dim: #db3e3e;
+  --hi: #ffe3e3;
+  --text: #ffcaca;
+  --rain-trail: #ff2a2a;
+  --rain-head: #ffe1e1;
+}
+
+/* ---------- 1. Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  color-scheme: dark;
+  background: var(--bg);
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--nav-h) + 16px);
+  -webkit-text-size-adjust: 100%;
+  scrollbar-color: var(--dim) #000;
+  scrollbar-width: thin;
+}
+html.booting { overflow: hidden; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: clamp(0.94rem, 0.9rem + 0.2vw, 1rem);
+  line-height: 1.75;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 { margin: 0; font-family: var(--font-display); font-weight: 400; line-height: 1.1; color: var(--hi); }
+p { margin: 0 0 1em; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+img, svg { display: block; max-width: 100%; }
+strong { color: var(--hi); font-weight: 500; }
+a { color: var(--accent); text-decoration: none; transition: color 0.2s, text-shadow 0.2s; }
+a:hover { color: var(--hi); text-shadow: var(--glow-sm); }
+button { font: inherit; color: inherit; }
+kbd {
+  display: inline-block; min-width: 1.6em; padding: 0 0.35em; margin: 0 1px;
+  font-family: var(--font-display); font-size: 0.85em; line-height: 1.5; text-align: center;
+  color: var(--accent); border: 1px solid var(--line-strong);
+}
+
+::selection { background: var(--accent); color: #000; }
+:focus-visible { outline: 2px solid var(--hi); outline-offset: 3px; }
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #000; }
+::-webkit-scrollbar-thumb { background: var(--dim); border: 2px solid #000; }
+
+.sr-only {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.skip-link {
+  position: fixed; top: -100px; left: 16px; z-index: 300;
+  padding: 10px 16px; background: var(--accent); color: #000;
+  font-family: var(--font-display); letter-spacing: 0.08em;
+}
+.skip-link:focus { top: 12px; color: #000; }
+
+.container { width: 100%; max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter); }
+
+/* ---------- 2. Background layers ---------- */
+.backdrop {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(120% 80% at 50% 0%, var(--bg-glow) 0%, var(--bg-2) 45%, var(--bg) 100%);
+}
+
+/* Matrix rain canvas — kept low-opacity so text stays readable */
+#rain {
+  position: fixed; top: 0; left: 0; z-index: 0;
+  width: 100%; height: 100vh; height: 100lvh;
+  pointer-events: none;
+  opacity: 0.3;
+  transition: opacity 1.2s var(--ease);
+}
+html.overload #rain { opacity: 0.72; }
+
+/* CRT: scanlines + vignette + flicker + rolling bar. Sits above everything, never intercepts input. */
+.crt { position: fixed; inset: 0; z-index: 200; pointer-events: none; }
+.crt::before {
+  content: ""; position: absolute; inset: 0;
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0, 0, 0, 0.22) 2px 3px);
+  opacity: 0.6;
+}
+.crt::after {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 58%, rgba(0, 0, 0, 0.55) 100%);
+}
+.crt__flicker { position: absolute; inset: 0; background: #000; opacity: 0; animation: crt-flicker 9s infinite; }
+.crt__roll {
+  position: absolute; left: 0; right: 0; top: 0; height: 22vh;
+  background: linear-gradient(to bottom, transparent, rgba(var(--accent-rgb), 0.035) 50%, transparent);
+  transform: translateY(-30vh);
+  animation: crt-roll 11s linear infinite;
+}
+.crt__flash {
+  position: absolute; inset: 0; opacity: 0;
+  background: radial-gradient(circle at 50% 45%, rgba(var(--accent-rgb), 0.28), transparent 70%);
+}
+html.flash .crt__flash { animation: crt-flash 0.7s ease-out; }
+html.flash main, html.flash .nav { animation: screen-jolt 0.42s steps(2); }
+
+@keyframes crt-flicker {
+  0%, 100% { opacity: 0; }
+  41% { opacity: 0; } 42% { opacity: 0.05; } 43% { opacity: 0; }
+  77% { opacity: 0; } 78% { opacity: 0.035; } 79% { opacity: 0.01; } 80% { opacity: 0.045; } 81% { opacity: 0; }
+}
+@keyframes crt-roll { to { transform: translateY(130vh); } }
+@keyframes crt-flash { 0% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes screen-jolt {
+  0%, 100% { transform: none; }
+  25% { transform: translate(-3px, 1px); }
+  50% { transform: translate(3px, -1px) skewX(0.6deg); }
+  75% { transform: translate(-1px, 0); }
+}
+
+/* ---------- 3. Boot sequence ---------- */
+.boot {
+  position: fixed; inset: 0; z-index: 100;
+  display: none; flex-direction: column; justify-content: center;
+  padding: clamp(20px, 6vw, 64px);
+  background: #000; color: var(--accent);
+  font-family: var(--font-display);
+  transition: opacity 0.55s ease, visibility 0s linear 0.55s;
+}
+html.booting .boot, .boot.is-done { display: flex; }
+.boot.is-done { opacity: 0; visibility: hidden; }
+.boot.is-done.is-fast { transition-duration: 0.25s, 0s; transition-delay: 0s, 0.25s; }
+
+.boot__inner { width: 100%; max-width: 780px; margin: 0 auto; }
+.boot__brand {
+  margin-bottom: 26px; color: var(--dim);
+  font-size: 0.85rem; letter-spacing: 0.3em; text-transform: uppercase;
+}
+.boot__brand span { color: var(--accent); }
+.boot__line {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+  min-height: 1.7em; margin: 0;
+  font-size: clamp(0.85rem, 2.4vw, 1.05rem); line-height: 1.7;
+}
+.boot__text { min-width: 0; overflow-wrap: anywhere; }
+.boot__line.is-active .boot__text::after { content: "\2588"; margin-left: 2px; animation: blink 0.8s steps(1) infinite; }
+.boot__ok { flex-shrink: 0; color: var(--hi); visibility: hidden; }
+.boot__line.is-complete .boot__ok { visibility: visible; }
+.boot__progress { height: 2px; margin-top: 26px; background: rgba(var(--accent-rgb), 0.15); overflow: hidden; }
+.boot__progress i {
+  display: block; height: 100%; background: var(--accent); box-shadow: var(--glow-sm);
+  transform: scaleX(0); transform-origin: left center;
+}
+.boot__granted {
+  margin: 26px 0 0; opacity: 0;
+  font-size: clamp(1.6rem, 6.5vw, 3.2rem); letter-spacing: 0.22em; color: var(--hi);
+  text-shadow: 0 0 10px rgba(var(--accent-rgb), 0.8), 0 0 40px rgba(var(--accent-rgb), 0.45);
+  transition: opacity 0.2s;
+}
+.boot.is-granted .boot__granted { opacity: 1; }
+.boot__skip {
+  position: absolute; top: max(16px, env(safe-area-inset-top)); right: 16px;
+  min-height: 44px; padding: 8px 16px;
+  background: transparent; border: 1px solid var(--line-strong); color: var(--accent);
+  font-family: var(--font-display); letter-spacing: 0.15em; text-transform: uppercase;
+  cursor: pointer; transition: background 0.2s, color 0.2s;
+}
+.boot__skip:hover { background: var(--accent); color: #000; }
+.boot__skip:focus-visible { border-color: var(--accent); box-shadow: var(--glow-sm); }
+
+/* ---------- 4. Nav ---------- */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  height: var(--nav-h);
+  background: rgba(0, 0, 0, 0.8);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.nav__inner { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+
+.nav__brand {
+  display: flex; align-items: center; min-width: 0;
+  font-family: var(--font-display); font-size: 1.05rem; white-space: nowrap;
+  color: var(--accent);
+}
+.nav__brand:hover { text-shadow: none; }
+.nav__brand .at, .nav__brand .sym { color: var(--dim); }
+.nav__brand .host { color: var(--accent); }
+.nav__brand .path { color: var(--hi); }
+.nav__brand .cursor { height: 1em; width: 0.55em; }
+
+.nav__list { display: flex; gap: 2px; }
+.nav__link {
+  display: block; padding: 6px 11px;
+  font-family: var(--font-display); font-size: 0.95rem; letter-spacing: 0.04em;
+  color: rgba(var(--accent-rgb), 0.75);
+  border: 1px solid transparent;
+  transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.nav__link::before { content: "./"; color: var(--dim); }
+.nav__link:hover { color: var(--hi); border-color: var(--line); text-shadow: none; }
+.nav__link.is-active { color: #000; background: var(--accent); box-shadow: var(--glow-sm); }
+.nav__link.is-active::before { color: rgba(0, 0, 0, 0.55); }
+
+.nav__toggle {
+  display: none; position: relative;
+  width: 44px; height: 44px; flex-shrink: 0;
+  background: transparent; border: 1px solid var(--line-strong); cursor: pointer;
+}
+.nav__toggle span {
+  position: absolute; left: 11px; right: 11px; height: 2px; background: var(--accent);
+  transition: transform 0.25s var(--ease), opacity 0.2s;
+}
+.nav__toggle span:nth-child(1) { top: 14px; }
+.nav__toggle span:nth-child(2) { top: 21px; }
+.nav__toggle span:nth-child(3) { top: 28px; }
+.nav.is-open .nav__toggle span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav.is-open .nav__toggle span:nth-child(2) { opacity: 0; }
+.nav.is-open .nav__toggle span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+@media (max-width: 899.98px) {
+  .nav__toggle { display: block; }
+  .nav__menu {
+    position: fixed; top: var(--nav-h); left: 0; right: 0;
+    max-height: calc(100vh - var(--nav-h)); overflow-y: auto;
+    padding: 10px var(--gutter) 22px;
+    background: rgba(0, 0, 0, 0.96);
+    border-bottom: 1px solid var(--line-strong);
+    opacity: 0; visibility: hidden; transform: translateY(-8px);
+    transition: opacity 0.25s, transform 0.25s var(--ease), visibility 0s linear 0.25s;
+  }
+  .nav.is-open .nav__menu { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+  .nav__list { flex-direction: column; gap: 0; }
+  .nav__link { padding: 13px 10px; font-size: 1.1rem; border: 0; border-bottom: 1px dashed var(--line); }
+  .nav__link:hover { border-color: var(--line); }
+}
+@media (max-width: 360px) {
+  .nav__brand { font-size: 0.92rem; }
+}
+
+/* ---------- 5. Shared components ---------- */
+.section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 112px); }
+
+.section-head { margin-bottom: clamp(30px, 5vw, 52px); }
+.section-kicker {
+  margin-bottom: 10px; color: var(--dim);
+  font-family: var(--font-display); font-size: 0.85rem; letter-spacing: 0.2em; text-transform: uppercase;
+}
+.section-title {
+  display: flex; align-items: center; gap: 18px;
+  font-size: clamp(2rem, 6vw, 3.25rem); text-transform: uppercase; letter-spacing: 0.04em;
+  text-shadow: 0 0 14px rgba(var(--accent-rgb), 0.45);
+}
+.section-title::after {
+  content: ""; flex: 1 1 40px; min-width: 40px; height: 1px;
+  background: linear-gradient(90deg, var(--line-strong), transparent);
+}
+@media (max-width: 479.98px) {
+  .section-title { flex-wrap: wrap; gap: 12px; }
+  .section-title::after { flex-basis: 100%; }
+}
+.section-intro { max-width: 62ch; margin-top: 14px; color: var(--text); }
+
+.hl { color: var(--accent); }
+.dim { color: var(--dim); }
+
+/* Blinking block cursor */
+.cursor {
+  display: inline-block; width: 0.6em; height: 1.05em; margin-left: 4px;
+  vertical-align: -0.15em; background: var(--accent); box-shadow: var(--glow-sm);
+  animation: blink 1.05s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* HUD panel: dark glass with bracket corners */
+.panel {
+  --c: rgba(var(--accent-rgb), 0.85);
+  position: relative;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(var(--c) 0 0) 0 0 / 16px 1px,
+    linear-gradient(var(--c) 0 0) 0 0 / 1px 16px,
+    linear-gradient(var(--c) 0 0) 100% 0 / 16px 1px,
+    linear-gradient(var(--c) 0 0) 100% 0 / 1px 16px,
+    linear-gradient(var(--c) 0 0) 0 100% / 16px 1px,
+    linear-gradient(var(--c) 0 0) 0 100% / 1px 16px,
+    linear-gradient(var(--c) 0 0) 100% 100% / 16px 1px,
+    linear-gradient(var(--c) 0 0) 100% 100% / 1px 16px,
+    var(--panel);
+  background-repeat: no-repeat;
+  background-origin: border-box;
+}
+
+/* Terminal window header bar */
+.term-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px; border-bottom: 1px solid var(--line);
+  color: var(--dim); font-family: var(--font-display); font-size: 0.85rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.term-dots { display: inline-flex; gap: 6px; flex-shrink: 0; }
+.term-dots i { width: 10px; height: 10px; border-radius: 50%; border: 1px solid var(--line-strong); }
+.term-dots i:first-child { background: var(--accent); border-color: var(--accent); box-shadow: var(--glow-sm); }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 48px; padding: 12px 22px;
+  font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--accent); background: rgba(var(--accent-rgb), 0.06);
+  border: 1px solid var(--accent); cursor: pointer;
+  transition: color 0.2s, background 0.2s, box-shadow 0.25s, border-color 0.2s;
+}
+.btn:hover, .btn:focus-visible {
+  color: #000; background: var(--accent); text-shadow: none;
+  box-shadow: 0 0 26px rgba(var(--accent-rgb), 0.55);
+}
+.btn--ghost { color: var(--hi); background: transparent; border-color: var(--line-strong); }
+.btn__arrow { transition: transform 0.2s var(--ease); }
+.btn:hover .btn__arrow { transform: translateX(4px); }
+
+/* Tags */
+.tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag {
+  padding: 2px 9px; font-size: 0.75rem; line-height: 1.7;
+  color: var(--accent); border: 1px solid var(--line-strong); background: rgba(var(--accent-rgb), 0.05);
+}
+
+/* Cards: green glow + 3D tilt (tilt angles set by JS via --rx / --ry) */
+.card {
+  position: relative; display: flex; flex-direction: column; height: 100%;
+  padding: clamp(18px, 2.4vw, 26px);
+  border: 1px solid var(--line); background: var(--panel);
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.5s var(--ease), border-color 0.3s, box-shadow 0.3s;
+}
+.card.is-tilting { transition: transform 0.1s linear, border-color 0.3s, box-shadow 0.3s; }
+.card::before { /* mouse-follow spotlight */
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(var(--accent-rgb), 0.11), transparent 45%);
+  transition: opacity 0.3s;
+}
+.card > * { position: relative; }
+.card:hover, .card:focus-within {
+  border-color: rgba(var(--accent-rgb), 0.75);
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.25), 0 0 30px rgba(var(--accent-rgb), 0.22), inset 0 0 30px rgba(var(--accent-rgb), 0.05);
+}
+.card:hover::before, .card:focus-within::before { opacity: 1; }
+
+.card__bar {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  margin-bottom: 16px; color: var(--dim);
+  font-family: var(--font-display); font-size: 0.8rem;
+}
+.card__path { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.badge {
+  flex-shrink: 0; padding: 1px 8px;
+  font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--accent); border: 1px solid var(--accent); box-shadow: inset 0 0 8px rgba(var(--accent-rgb), 0.2);
+}
+.card__title { margin-bottom: 10px; font-size: clamp(1.35rem, 2.4vw, 1.6rem); }
+.card__desc { margin-bottom: 18px; font-size: 0.93rem; }
+.card__links {
+  display: flex; flex-wrap: wrap; gap: 4px 22px;
+  margin-top: auto; padding-top: 12px; border-top: 1px dashed var(--line);
+}
+.tlink {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 44px;
+  font-family: var(--font-display); letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.92rem;
+}
+
+/* ---------- 6. Hero ---------- */
+.hero {
+  position: relative; z-index: 1;
+  display: flex; align-items: center;
+  min-height: 100vh; min-height: 100svh;
+  padding: calc(var(--nav-h) + 48px) 0 110px;
+}
+.hero::before { /* darken behind the text for readability over the rain */
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(70% 60% at 28% 50%, rgba(0, 0, 0, 0.7), transparent 75%);
+}
+.hero__inner { position: relative; }
+
+.hero__kicker {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 6px 12px; margin-bottom: 0;
+  font-family: var(--font-display); font-size: 0.8rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--accent); border: 1px solid var(--line); background: rgba(0, 0, 0, 0.6);
+}
+.pulse {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  background: var(--accent); box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.6);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.6); }
+  70% { box-shadow: 0 0 0 10px rgba(var(--accent-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0); }
+}
+
+.hero__name {
+  display: block; margin: 18px 0 6px;
+  font-size: clamp(4.2rem, 22vw, 11.5rem); line-height: 0.95;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+
+/* Glitch: two clipped, offset copies of the text that jump briefly every few seconds */
+.glitch {
+  position: relative; width: fit-content;
+  color: var(--hi);
+  text-shadow: 0 0 6px rgba(var(--accent-rgb), 0.6), 0 0 32px rgba(var(--accent-rgb), 0.35);
+  animation: glitch-skew 4.6s steps(1) infinite;
+}
+.glitch::before, .glitch::after {
+  content: attr(data-text);
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+}
+.glitch::before {
+  color: var(--accent); text-shadow: -3px 0 rgba(var(--accent-rgb), 0.9);
+  clip-path: inset(0 0 100% 0);
+  animation: glitch-a 4.6s steps(1) infinite;
+}
+.glitch::after {
+  color: var(--hi); text-shadow: 3px 0 var(--dim);
+  clip-path: inset(100% 0 0 0);
+  animation: glitch-b 4.6s steps(1) infinite;
+}
+.glitch:hover::before, .glitch:hover::after { animation-duration: 1.1s; }
+
+@keyframes glitch-a {
+  0%, 83%, 100% { clip-path: inset(0 0 100% 0); transform: none; }
+  84% { clip-path: inset(8% 0 72% 0); transform: translate(-7px, 0); }
+  86% { clip-path: inset(44% 0 36% 0); transform: translate(6px, 0); }
+  88% { clip-path: inset(78% 0 4% 0); transform: translate(-4px, 0); }
+  90% { clip-path: inset(18% 0 60% 0); transform: translate(8px, 0); }
+  92% { clip-path: inset(0 0 100% 0); transform: none; }
+  96% { clip-path: inset(56% 0 28% 0); transform: translate(-3px, 0); }
+  97% { clip-path: inset(0 0 100% 0); transform: none; }
+}
+@keyframes glitch-b {
+  0%, 83%, 100% { clip-path: inset(100% 0 0 0); transform: none; }
+  85% { clip-path: inset(62% 0 18% 0); transform: translate(6px, 0); }
+  87% { clip-path: inset(12% 0 70% 0); transform: translate(-6px, 0); }
+  89% { clip-path: inset(34% 0 46% 0); transform: translate(4px, 0); }
+  91% { clip-path: inset(84% 0 2% 0); transform: translate(-8px, 0); }
+  93% { clip-path: inset(100% 0 0 0); transform: none; }
+}
+@keyframes glitch-skew {
+  0%, 83%, 94%, 100% { transform: none; }
+  85% { transform: skewX(-5deg); }
+  87% { transform: skewX(4deg); }
+  89% { transform: skewX(-2deg) translateX(2px); }
+  91% { transform: skewX(1deg); }
+}
+
+.hero__role {
+  min-height: 1.5em; margin-bottom: 18px;
+  font-family: var(--font-display); font-size: clamp(1.2rem, 3.6vw, 2rem); line-height: 1.4;
+  color: var(--accent); text-shadow: var(--glow-sm);
+}
+.hero__prompt { color: var(--dim); margin-right: 10px; }
+.hero__tagline { max-width: 58ch; font-size: clamp(0.95rem, 1.5vw, 1.08rem); color: var(--text); }
+.hero__actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 30px; }
+
+.hero__meta {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;
+  max-width: 760px; margin-top: 48px;
+}
+.hero__meta li { padding: 2px 0 2px 14px; border-left: 2px solid var(--accent); }
+.hero__meta strong {
+  display: block; font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); line-height: 1.3; color: var(--hi);
+}
+.hero__meta span { display: block; color: var(--dim); font-size: 0.82rem; line-height: 1.5; }
+
+/* Decorative HUD readout (wide screens only) */
+.hero__hud {
+  position: absolute; right: var(--gutter); top: 50%; transform: translateY(-50%);
+  display: none; padding: 18px 20px; min-width: 230px;
+  font-family: var(--font-display); font-size: 0.85rem; line-height: 2; color: var(--dim);
+}
+.hero__hud p { margin: 0; display: flex; justify-content: space-between; gap: 18px; }
+.hero__hud b { font-weight: 400; color: var(--accent); }
+@media (min-width: 1180px) { .hero__hud { display: block; } }
+
+.scroll-cue {
+  position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  color: var(--dim); font-family: var(--font-display); font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase;
+}
+.scroll-cue__line { width: 1px; height: 38px; background: linear-gradient(var(--accent), transparent); animation: cue 2s var(--ease) infinite; transform-origin: top; }
+@keyframes cue { 0% { transform: scaleY(0); } 60% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1); opacity: 0; } }
+
+@media (max-width: 599.98px) {
+  .hero__kicker { letter-spacing: 0.14em; font-size: 0.72rem; }
+  .hero__meta { grid-template-columns: 1fr; gap: 12px; margin-top: 36px; }
+  .hero__meta li { display: flex; align-items: baseline; gap: 12px; }
+  .hero__meta strong { flex-shrink: 0; min-width: 6.2em; }
+  .hero__actions .btn { flex: 1 1 140px; }
+}
+@media (max-height: 700px) { .scroll-cue { display: none; } }
+
+/* ---------- 7. About ---------- */
+.about__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(28px, 5vw, 56px); align-items: start; }
+@media (min-width: 900px) { .about__grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); } }
+.about__copy p { max-width: 62ch; }
+.lead {
+  font-family: var(--font-display); font-size: clamp(1.25rem, 2.4vw, 1.55rem); line-height: 1.45;
+  color: var(--hi);
+}
+.whoami { font-size: 0.92rem; }
+.whoami__body { padding: 18px 20px 20px; }
+.whoami__cmd { margin: 0; color: var(--hi); }
+.whoami__cmd .p { color: var(--accent); }
+.whoami dl {
+  display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 18px;
+  margin: 12px 0 14px; padding-left: 2px;
+}
+.whoami dt { color: var(--dim); }
+.whoami dt::after { content: " :"; }
+.whoami dd { margin: 0; color: var(--hi); overflow-wrap: anywhere; }
+.status-dot { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; background: var(--accent); box-shadow: var(--glow-sm); }
+@media (max-width: 420px) {
+  .whoami dl { grid-template-columns: 1fr; gap: 0; }
+  .whoami dd { margin-bottom: 8px; }
+}
+
+/* ---------- 8. Skills ---------- */
+.skills__grid { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 640px) {
+  .skills__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .skills__grid > li:last-child { grid-column: 1 / -1; }
+}
+@media (min-width: 1024px) {
+  .skills__grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .skills__grid > li { grid-column: span 2; }
+  .skills__grid > li:nth-child(n + 4) { grid-column: span 3; }
+}
+.skill-group { height: 100%; padding: clamp(18px, 2.4vw, 24px); transition: border-color 0.3s, box-shadow 0.3s; }
+.skill-group:hover { border-color: var(--line-strong); box-shadow: var(--glow-md); }
+.skill-group__head {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+  margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px dashed var(--line);
+}
+.skill-group h3 { font-size: 1.3rem; }
+.skill-group h3::before { content: "> "; color: var(--accent); }
+.skill-group__id { color: var(--dim); font-family: var(--font-display); font-size: 0.8rem; }
+
+.skill {
+  display: grid; grid-template-columns: minmax(0, 8.6rem) minmax(0, 1fr) 3.4ch;
+  align-items: center; gap: 12px; padding: 4px 0; font-size: 0.9rem;
+}
+.skill__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.skill__bar {
+  position: relative; height: 10px;
+  background: repeating-linear-gradient(90deg, rgba(var(--accent-rgb), 0.13) 0 6px, transparent 6px 9px);
+}
+.skill__bar::after {
+  content: ""; position: absolute; inset: 0;
+  background: repeating-linear-gradient(90deg, var(--accent) 0 6px, transparent 6px 9px);
+  clip-path: inset(0 calc(100% - var(--lvl, 50%)) 0 0);
+  filter: drop-shadow(0 0 3px rgba(var(--accent-rgb), 0.7));
+  transition: clip-path 1.4s var(--ease) var(--d, 0ms);
+}
+.js .reveal:not(.is-visible) .skill__bar::after { clip-path: inset(0 100% 0 0); }
+.skill__pct { color: var(--accent); text-align: right; font-variant-numeric: tabular-nums; }
+.skill-group .tags { margin-top: 16px; }
+
+/* ---------- 9. Projects ---------- */
+.projects { display: grid; gap: 22px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 700px) {
+  .projects { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .projects > .is-featured { grid-column: span 2; }
+}
+@media (min-width: 1100px) { .projects { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+.project__content { display: flex; flex-direction: column; flex: 1; }
+.project__layout { display: grid; gap: 22px; flex: 1; }
+@media (min-width: 700px) { .project__layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); } }
+
+/* Fake "title screen" for the featured game */
+.screen {
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 210px; padding: 24px; text-align: center;
+  border: 1px solid var(--line-strong);
+  background: radial-gradient(ellipse at 50% 42%, rgba(var(--accent-rgb), 0.16), transparent 62%), #010402;
+  font-family: var(--font-display);
+}
+.screen::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0, 0, 0, 0.35) 2px 3px);
+}
+.screen__eye { font-size: 2.4rem; line-height: 1; color: var(--accent); text-shadow: 0 0 18px rgba(var(--accent-rgb), 0.9); margin-bottom: 14px; }
+.screen__title { font-size: clamp(1.25rem, 3vw, 1.9rem); letter-spacing: 0.18em; color: var(--hi); text-shadow: 0 0 14px rgba(var(--accent-rgb), 0.7); line-height: 1.2; }
+.screen__sub { margin-top: 6px; font-size: 0.78rem; letter-spacing: 0.5em; color: var(--dim); }
+.screen__start { margin-top: 20px; font-size: 0.8rem; letter-spacing: 0.32em; color: var(--accent); animation: blink 1.3s steps(1) infinite; }
+
+/* ---------- 10. Megalodon Studios ---------- */
+.studio { padding: clamp(22px, 4vw, 48px); }
+.studio__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; align-items: center; }
+@media (min-width: 900px) { .studio__grid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); } }
+.file-meta {
+  display: flex; flex-wrap: wrap; gap: 4px 20px; margin-bottom: 18px;
+  color: var(--dim); font-family: var(--font-display); font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase;
+}
+.file-meta b { font-weight: 400; color: var(--accent); }
+.studio__title { margin-bottom: 18px; font-size: clamp(2rem, 5vw, 3.2rem); }
+.glow { text-shadow: 0 0 12px rgba(var(--accent-rgb), 0.8), 0 0 36px rgba(var(--accent-rgb), 0.4); }
+.studio__copy > p { max-width: 60ch; }
+
+.pillars { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); margin: 26px 0; }
+.pillars li { padding: 2px 0 2px 14px; border-left: 2px solid var(--accent); }
+.pillars strong { display: block; font-family: var(--font-display); font-weight: 400; font-size: 1.05rem; }
+.pillars span { display: block; color: var(--dim); font-size: 0.84rem; line-height: 1.55; }
+
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0 0 28px; }
+.facts div { padding: 10px 12px; border: 1px dashed var(--line); }
+.facts dt { color: var(--dim); font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; }
+.facts dd { margin: 0; color: var(--hi); font-family: var(--font-display); }
+.studio__actions { display: flex; flex-wrap: wrap; gap: 14px; }
+
+/* Sonar */
+.sonar-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.sonar {
+  position: relative; width: min(100%, 320px); aspect-ratio: 1; border-radius: 50%; overflow: hidden;
+  border: 1px solid var(--line-strong);
+  background:
+    linear-gradient(var(--line) 0 0) 50% 0 / 1px 100% no-repeat,
+    linear-gradient(var(--line) 0 0) 0 50% / 100% 1px no-repeat,
+    radial-gradient(circle, transparent 0 24.5%, var(--line) 25% 25.4%, transparent 26% 49.5%, var(--line) 50% 50.4%, transparent 51% 74.5%, var(--line) 75% 75.4%, transparent 76%),
+    radial-gradient(circle, rgba(var(--accent-rgb), 0.08), rgba(0, 0, 0, 0.85) 70%);
+  box-shadow: 0 0 40px rgba(var(--accent-rgb), 0.15), inset 0 0 40px rgba(var(--accent-rgb), 0.12);
+}
+.sonar__sweep {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0deg 290deg, rgba(var(--accent-rgb), 0.04) 300deg, rgba(var(--accent-rgb), 0.45) 360deg);
+  animation: sweep 4s linear infinite;
+}
+@keyframes sweep { to { transform: rotate(360deg); } }
+.blip {
+  position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%;
+  background: var(--hi); box-shadow: 0 0 10px var(--accent);
+  opacity: 0; animation: blip 4s linear infinite;
+}
+/* Delays are phase-matched to the sweep angle: delay = angle/360 × 4s − 4s */
+.blip--1 { left: 75.98%; top: 35%; animation-delay: -3.333s; }
+.blip--2 { left: 42.48%; top: 70.67%; width: 12px; height: 12px; margin: -6px 0 0 -6px; animation-delay: -1.778s; }
+.blip--3 { left: 16.17%; top: 37.69%; animation-delay: -0.778s; }
+.blip em {
+  position: absolute; left: 16px; top: -6px; white-space: nowrap;
+  font-style: normal; font-family: var(--font-display); font-size: 0.7rem; letter-spacing: 0.1em; color: var(--accent);
+}
+@keyframes blip { 0% { opacity: 1; transform: scale(1.5); } 12% { transform: scale(1); } 70% { opacity: 0.15; } 100% { opacity: 0; } }
+.sonar__read { margin: 0; color: var(--dim); font-family: var(--font-display); font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; }
+
+/* ---------- 11. Freelance ---------- */
+.services { display: grid; gap: 22px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 640px) {
+  .services { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .services > li:last-child { grid-column: 1 / -1; }
+}
+@media (min-width: 1000px) {
+  .services { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .services > li:last-child { grid-column: auto; }
+}
+.svc__cmd { margin-bottom: 14px; color: var(--dim); font-size: 0.82rem; }
+.svc__cmd span { color: var(--accent); }
+.svc__icon { width: 34px; height: 34px; margin-bottom: 14px; color: var(--accent); filter: drop-shadow(0 0 6px rgba(var(--accent-rgb), 0.6)); }
+.svc__list { margin-top: auto; }
+.svc__list li { padding: 3px 0; font-size: 0.9rem; }
+.svc__list li::before { content: "\203A"; margin-right: 10px; color: var(--accent); }
+
+.process {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px;
+  margin: 34px 0 0; font-family: var(--font-display); color: var(--hi);
+}
+.process li { display: flex; align-items: center; gap: 14px; }
+.process li span { color: var(--dim); }
+.process li:not(:last-child)::after { content: "\2192"; color: var(--accent); }
+
+.hire {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 22px;
+  margin-top: 30px; padding: clamp(20px, 3vw, 30px);
+}
+.hire h3 { font-size: clamp(1.4rem, 3vw, 1.9rem); margin-bottom: 6px; }
+.hire p { margin: 0; color: var(--text); }
+.hire__actions { display: flex; flex-wrap: wrap; gap: 14px; }
+
+/* ---------- 12. Contact + terminal ---------- */
+.contact__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; }
+@media (min-width: 960px) { .contact__grid { grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.6fr); align-items: start; } }
+
+.terminal {
+  border: 1px solid var(--line-strong);
+  background: rgba(0, 5, 1, 0.94);
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.06), 0 0 50px rgba(var(--accent-rgb), 0.12), inset 0 0 60px rgba(var(--accent-rgb), 0.04);
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.terminal:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.35), 0 0 50px rgba(var(--accent-rgb), 0.2), inset 0 0 60px rgba(var(--accent-rgb), 0.05);
+}
+.terminal__screen {
+  height: 380px; overflow-y: auto; overscroll-behavior: contain;
+  padding: 16px 18px; font-size: 0.9rem; line-height: 1.6; cursor: text;
+}
+.t-line { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.t-cmd { color: var(--hi); margin-top: 8px; }
+.t-prompt, .t-ok { color: var(--accent); }
+.t-dim { color: var(--dim); }
+.t-err { color: var(--hi); }
+.t-err::before { content: "\2717 "; color: var(--accent); }
+
+.terminal__form { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.terminal__prompt { flex-shrink: 0; color: var(--accent); white-space: nowrap; }
+.terminal__input {
+  flex: 1; min-width: 0; padding: 2px 0;
+  background: transparent; border: 0; outline: 0;
+  color: var(--hi); caret-color: var(--accent);
+  font: inherit; font-size: max(16px, 1em); /* ≥16px stops iOS zoom-on-focus */
+}
+.chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px 14px; border-top: 1px solid var(--line); }
+.chip {
+  min-height: 36px; padding: 4px 11px;
+  font-family: var(--font-display); font-size: 0.85rem; letter-spacing: 0.04em;
+  color: var(--accent); background: transparent; border: 1px solid var(--line-strong); cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.chip:hover, .chip:focus-visible { background: var(--accent); color: #000; }
+.chip--red { color: #ff5c5c; border-color: #ff3b3b; }
+.chip--red:hover, .chip--red:focus-visible { background: #ff3b3b; color: #000; }
+.chip--blue { color: #6aa8ff; border-color: #3d8bff; }
+.chip--blue:hover, .chip--blue:focus-visible { background: #3d8bff; color: #000; }
+
+.contact__side .lead { margin-bottom: 22px; }
+.socials { display: grid; gap: 10px; }
+.social {
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+  color: var(--hi); border: 1px solid var(--line); background: var(--panel);
+  transition: border-color 0.25s, box-shadow 0.25s, color 0.2s;
+}
+.social:hover, .social:focus-visible { color: var(--accent); border-color: var(--accent); box-shadow: var(--glow-md); text-shadow: none; }
+.social svg { width: 22px; height: 22px; flex-shrink: 0; color: var(--accent); }
+.social__label { display: flex; flex-direction: column; min-width: 0; line-height: 1.35; font-family: var(--font-display); font-size: 1.05rem; }
+.social__label small { font-family: var(--font-body); font-size: 0.76rem; color: var(--dim); }
+.social__arrow { margin-left: auto; color: var(--dim); }
+.contact__hint { margin-top: 20px; color: var(--dim); font-size: 0.85rem; }
+
+@media (max-width: 599.98px) {
+  .terminal__screen { height: 320px; padding: 14px; font-size: 0.84rem; }
+}
+
+/* ---------- 13. Footer ---------- */
+.footer {
+  position: relative; z-index: 1;
+  padding: 44px 0 calc(44px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.92));
+}
+.footer__wake {
+  min-height: 1.6em; margin-bottom: 18px;
+  font-family: var(--font-display); font-size: clamp(1.15rem, 3vw, 1.55rem);
+  color: var(--accent); text-shadow: var(--glow-sm);
+}
+.footer__row {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 28px;
+  color: var(--dim); font-size: 0.85rem;
+}
+.footer__row p { margin: 0; }
+.footer__top { font-family: var(--font-display); letter-spacing: 0.1em; display: inline-flex; align-items: center; min-height: 44px; }
+
+/* ---------- 14. Toast ---------- */
+.toast {
+  position: fixed; left: 16px; right: 16px; bottom: max(24px, env(safe-area-inset-bottom)); z-index: 150;
+  width: fit-content; max-width: calc(100% - 32px); margin-inline: auto;
+  padding: 12px 18px;
+  font-family: var(--font-display); letter-spacing: 0.06em; color: var(--accent);
+  background: rgba(0, 0, 0, 0.94); border: 1px solid var(--accent); box-shadow: var(--glow-md);
+  opacity: 0; transform: translateY(16px); pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s var(--ease);
+}
+.toast.is-visible { opacity: 1; transform: none; }
+
+/* ---------- 15. Scroll reveal ---------- */
+.js .reveal {
+  opacity: 0; translate: 0 26px;
+  transition: opacity 0.8s var(--ease) var(--d, 0ms), translate 0.8s var(--ease) var(--d, 0ms);
+}
+.js .reveal.is-visible { opacity: 1; translate: none; }
+
+/* Main content sits above the background layers */
+main, .nav, .footer { position: relative; }
+main { z-index: 1; }
+
+/* ---------- 16. Reduced motion: no rain animation, glitch, flicker or slides ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+  .glitch, .glitch::before, .glitch::after { animation: none !important; }
+  .glitch::before, .glitch::after { display: none; }
+  .crt__flicker, .crt__roll, .crt__flash { display: none; }
+  .cursor, .screen__start, .boot__line.is-active .boot__text::after { animation: none !important; }
+  .sonar__sweep { animation: none !important; transform: rotate(62deg); }
+  .blip { animation: none !important; opacity: 0.85; }
+  .js .reveal { translate: none; }
+}
+</style>
+</head>
+
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- Background layers -->
+<div class="backdrop" aria-hidden="true"></div>
+<canvas id="rain" aria-hidden="true"></canvas>
+
+<!-- ======================= BOOT SEQUENCE ======================= -->
+<div id="boot" class="boot" role="dialog" aria-modal="true" aria-label="Boot sequence">
+  <button type="button" class="boot__skip" aria-label="Skip boot sequence">Skip <span aria-hidden="true">&raquo;</span></button>
+  <div class="boot__inner" aria-hidden="true">
+    <p class="boot__brand">VARUN-OS <span>v26.10</span> // secure terminal</p>
+    <div class="boot__lines">
+      <p class="boot__line" data-text="Initializing..."><span class="boot__text"></span><span class="boot__ok">[ OK ]</span></p>
+      <p class="boot__line" data-text="Loading modules... react · node · flask · postgres · docker"><span class="boot__text"></span><span class="boot__ok">[ OK ]</span></p>
+      <p class="boot__line" data-text="Mounting /dev/megalodon-studios..."><span class="boot__text"></span><span class="boot__ok">[ OK ]</span></p>
+      <p class="boot__line" data-text="Establishing uplink: Bengaluru node BLR-01..."><span class="boot__text"></span><span class="boot__ok">[ OK ]</span></p>
+      <p class="boot__line" data-text="Decrypting identity: VARUN"><span class="boot__text"></span><span class="boot__ok">[ OK ]</span></p>
+    </div>
+    <div class="boot__progress"><i></i></div>
+    <p class="boot__granted">ACCESS GRANTED</p>
+  </div>
+  <p class="sr-only">Loading portfolio…</p>
+</div>
+
+<!-- ======================= NAV ======================= -->
+<header class="nav">
+  <div class="container nav__inner">
+    <a class="nav__brand" href="#home" aria-label="Varun — back to top">
+      <span class="host">varun</span><span class="at">@</span><span class="host">portfolio</span><span class="sym">:</span><span class="path">~<span id="nav-path"></span></span><span class="sym">$</span><span class="cursor" aria-hidden="true"></span>
+    </a>
+    <button type="button" class="nav__toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="nav-menu" class="nav__menu" aria-label="Primary">
+      <ul class="nav__list" role="list">
+        <li><a class="nav__link" href="#about">about</a></li>
+        <li><a class="nav__link" href="#skills">skills</a></li>
+        <li><a class="nav__link" href="#projects">projects</a></li>
+        <li><a class="nav__link" href="#studio">studio</a></li>
+        <li><a class="nav__link" href="#freelance">freelance</a></li>
+        <li><a class="nav__link" href="#contact">contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ======================= HERO ======================= -->
+  <section id="home" class="hero" aria-labelledby="hero-name">
+    <div class="container hero__inner">
+      <p class="hero__kicker reveal"><span class="pulse" aria-hidden="true"></span> System online · Bengaluru, IN</p>
+
+      <!-- TODO: add your surname here (and in data-text) if you want it in the hero -->
+      <h1 id="hero-name" class="hero__name glitch reveal" data-text="Varun" style="--d: 90ms">Varun</h1>
+
+      <p class="hero__role reveal" style="--d: 170ms">
+        <span class="hero__prompt" aria-hidden="true">&gt;_</span><span class="sr-only">Full-Stack Developer, Game Developer, Builder of Things</span><span id="typed" aria-hidden="true">Full-Stack Developer</span><span class="cursor" aria-hidden="true"></span>
+      </p>
+
+      <p class="hero__tagline reveal" style="--d: 250ms">
+        I build fast, full-stack products by day and games with teeth by night — from PostgreSQL schemas to Roblox horror. Founder of <a href="#studio">Megalodon Studios</a>.
+      </p>
+
+      <div class="hero__actions reveal" style="--d: 330ms">
+        <a class="btn" href="#projects">View Projects <span class="btn__arrow" aria-hidden="true">&rarr;</span></a>
+        <a class="btn btn--ghost" href="#contact">Contact <span aria-hidden="true">_</span></a>
+      </div>
+
+      <ul class="hero__meta reveal" role="list" style="--d: 420ms">
+        <li><strong>Top 500</strong><span>of 4,595 teams · Omnikon 2026</span></li>
+        <li><strong>SIH 2026</strong><span>Smart India Hackathon builder</span></li>
+        <li><strong>2 live</strong><span>on Roblox &amp; Google Play</span></li>
+      </ul>
+    </div>
+
+    <div class="hero__hud panel" aria-hidden="true">
+      <p><span>LAT</span><b>12.9716° N</b></p>
+      <p><span>LON</span><b>77.5946° E</b></p>
+      <p><span>NODE</span><b>BLR-01</b></p>
+      <p><span>UPTIME</span><b id="uptime">00:00:00</b></p>
+      <p><span>SIGNAL</span><b>&#9646;&#9646;&#9646;&#9646;&#9647;</b></p>
+    </div>
+
+    <a class="scroll-cue" href="#about"><span>scroll</span><span class="scroll-cue__line" aria-hidden="true"></span><span class="sr-only"> to the About section</span></a>
+  </section>
+
+  <!-- ======================= ABOUT ======================= -->
+  <section id="about" class="section" aria-labelledby="about-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <p class="section-kicker"><span aria-hidden="true">//</span> 01 — whoami</p>
+        <h2 id="about-title" class="section-title" data-decrypt>About Me</h2>
+      </header>
+
+      <div class="about__grid">
+        <div class="about__copy reveal">
+          <p class="lead">I'm Varun. I write code that ships — and games that haunt.</p>
+          <p>I'm a BCA student at <strong>Jain (Deemed-to-be) University</strong> in Bengaluru and a full-stack developer working across <span class="hl">React</span>, <span class="hl">Node.js</span>, <span class="hl">Python Flask</span>, <span class="hl">PostgreSQL</span> and <span class="hl">Docker</span>. I like owning the whole stack: the schema, the API, the pixels and the deploy.</p>
+          <p>Games have always been the constant. I founded <strong>Megalodon Studios</strong> to build atmospheric worlds people remember, and I spend my spare cycles on animation, design and high-performance computing — because a dropped frame is a bug, not a vibe.</p>
+          <!-- TODO: adjust this availability line to what you're looking for -->
+          <p>Hackathons keep me sharp: top 500 of 4,595 teams at Omnikon 2026 and a Smart India Hackathon 2026 build. I'm open to internships, freelance work and ambitious collaborations.</p>
+          <!-- TODO (optional): add a portrait, e.g.
+          <img src="varun.jpg" alt="Portrait of Varun" width="160" height="160" loading="lazy"> -->
+        </div>
+
+        <div class="whoami panel reveal" role="group" aria-label="whoami terminal output" style="--d: 120ms">
+          <div class="term-head"><span class="term-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>varun@portfolio: ~</span></div>
+          <div class="whoami__body">
+            <p class="whoami__cmd"><span class="p">varun@portfolio:~$</span> whoami --verbose</p>
+            <dl>
+              <dt>name</dt><dd>Varun</dd>
+              <dt>location</dt><dd>Bengaluru, India</dd>
+              <!-- TODO (optional): add your graduation year -->
+              <dt>education</dt><dd>BCA · Jain (Deemed-to-be) University</dd>
+              <dt>role</dt><dd>Full-Stack Developer</dd>
+              <dt>studio</dt><dd>Founder, Megalodon Studios</dd>
+              <dt>focus</dt><dd>[ game-dev, animation/design, HPC ]</dd>
+              <dt>stack</dt><dd>react · node · flask · postgres · docker</dd>
+              <dt>freelance</dt><dd>Fiverr · open for work</dd>
+              <dt>status</dt><dd><span class="status-dot" aria-hidden="true"></span>available</dd>
+            </dl>
+            <p class="whoami__cmd"><span class="p">varun@portfolio:~$</span><span class="cursor" aria-hidden="true"></span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= SKILLS ======================= -->
+  <!-- TODO: tune skill names, percentages (--lvl and the visible %) and tags to match you -->
+  <section id="skills" class="section" aria-labelledby="skills-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <p class="section-kicker"><span aria-hidden="true">//</span> 02 — ls ./modules</p>
+        <h2 id="skills-title" class="section-title" data-decrypt>Skills</h2>
+        <p class="section-intro">Loaded modules. Levels are self-assessed and constantly being patched.</p>
+      </header>
+
+      <ul class="skills__grid" role="list">
+        <li class="reveal">
+          <article class="skill-group panel" aria-labelledby="sk-fe">
+            <header class="skill-group__head"><h3 id="sk-fe">Frontend</h3><span class="skill-group__id" aria-hidden="true">mod_01</span></header>
+            <ul role="list">
+              <li class="skill" style="--lvl: 88%"><span class="skill__name">React</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">88%</span></li>
+              <li class="skill" style="--lvl: 90%; --d: 80ms"><span class="skill__name">JavaScript</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">90%</span></li>
+              <li class="skill" style="--lvl: 92%; --d: 160ms"><span class="skill__name">HTML / CSS</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">92%</span></li>
+              <li class="skill" style="--lvl: 70%; --d: 240ms"><span class="skill__name">TypeScript</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">70%</span></li>
+            </ul>
+            <ul class="tags" role="list" aria-label="Also">
+              <li class="tag">responsive UI</li><li class="tag">Canvas API</li><li class="tag">a11y</li><li class="tag">Vite</li>
+            </ul>
+          </article>
+        </li>
+        <li class="reveal" style="--d: 80ms">
+          <article class="skill-group panel" aria-labelledby="sk-be">
+            <header class="skill-group__head"><h3 id="sk-be">Backend</h3><span class="skill-group__id" aria-hidden="true">mod_02</span></header>
+            <ul role="list">
+              <li class="skill" style="--lvl: 86%"><span class="skill__name">Node.js</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">86%</span></li>
+              <li class="skill" style="--lvl: 82%; --d: 80ms"><span class="skill__name">Express</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">82%</span></li>
+              <li class="skill" style="--lvl: 82%; --d: 160ms"><span class="skill__name">Python / Flask</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">82%</span></li>
+              <li class="skill" style="--lvl: 85%; --d: 240ms"><span class="skill__name">REST APIs</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">85%</span></li>
+            </ul>
+            <ul class="tags" role="list" aria-label="Also">
+              <li class="tag">JWT auth</li><li class="tag">WebSockets</li><li class="tag">webhooks</li>
+            </ul>
+          </article>
+        </li>
+        <li class="reveal" style="--d: 160ms">
+          <article class="skill-group panel" aria-labelledby="sk-db">
+            <header class="skill-group__head"><h3 id="sk-db">Database / DevOps</h3><span class="skill-group__id" aria-hidden="true">mod_03</span></header>
+            <ul role="list">
+              <li class="skill" style="--lvl: 80%"><span class="skill__name">PostgreSQL</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">80%</span></li>
+              <li class="skill" style="--lvl: 76%; --d: 80ms"><span class="skill__name">Docker</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">76%</span></li>
+              <li class="skill" style="--lvl: 88%; --d: 160ms"><span class="skill__name">Git / GitHub</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">88%</span></li>
+              <li class="skill" style="--lvl: 78%; --d: 240ms"><span class="skill__name">Linux</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">78%</span></li>
+            </ul>
+            <ul class="tags" role="list" aria-label="Also">
+              <li class="tag">SQL</li><li class="tag">Compose</li><li class="tag">CI/CD</li><li class="tag">Nginx</li>
+            </ul>
+          </article>
+        </li>
+        <li class="reveal">
+          <article class="skill-group panel" aria-labelledby="sk-gd">
+            <header class="skill-group__head"><h3 id="sk-gd">Game Dev / Design</h3><span class="skill-group__id" aria-hidden="true">mod_04</span></header>
+            <ul role="list">
+              <li class="skill" style="--lvl: 86%"><span class="skill__name">Roblox / Luau</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">86%</span></li>
+              <li class="skill" style="--lvl: 84%; --d: 80ms"><span class="skill__name">Game design</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">84%</span></li>
+              <li class="skill" style="--lvl: 76%; --d: 160ms"><span class="skill__name">Animation</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">76%</span></li>
+              <li class="skill" style="--lvl: 78%; --d: 240ms"><span class="skill__name">UI / UX</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">78%</span></li>
+            </ul>
+            <ul class="tags" role="list" aria-label="Also">
+              <li class="tag">level design</li><li class="tag">lighting &amp; audio</li><li class="tag">Blender</li><li class="tag">Figma</li>
+            </ul>
+          </article>
+        </li>
+        <li class="reveal" style="--d: 80ms">
+          <article class="skill-group panel" aria-labelledby="sk-hpc">
+            <header class="skill-group__head"><h3 id="sk-hpc">HPC</h3><span class="skill-group__id" aria-hidden="true">mod_05</span></header>
+            <ul role="list">
+              <li class="skill" style="--lvl: 74%"><span class="skill__name">C / C++</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">74%</span></li>
+              <li class="skill" style="--lvl: 64%; --d: 80ms"><span class="skill__name">OpenMP / MPI</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">64%</span></li>
+              <li class="skill" style="--lvl: 55%; --d: 160ms"><span class="skill__name">CUDA</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">55%</span></li>
+              <li class="skill" style="--lvl: 70%; --d: 240ms"><span class="skill__name">Profiling</span><span class="skill__bar" aria-hidden="true"></span><span class="skill__pct">70%</span></li>
+            </ul>
+            <ul class="tags" role="list" aria-label="Also">
+              <li class="tag">parallel algorithms</li><li class="tag">SIMD</li><li class="tag">benchmarking</li>
+            </ul>
+          </article>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ======================= PROJECTS ======================= -->
+  <!-- TODO: double-check each project's tech tags and replace every href="#" with real Live/Code URLs -->
+  <section id="projects" class="section" aria-labelledby="projects-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <p class="section-kicker"><span aria-hidden="true">//</span> 03 — ls ./projects</p>
+        <h2 id="projects-title" class="section-title" data-decrypt>Projects</h2>
+        <p class="section-intro">Shipped, published, and battle-tested at national hackathons.</p>
+      </header>
+
+      <ul class="projects" role="list">
+        <!-- Featured -->
+        <li class="reveal is-featured">
+          <article class="card tilt" aria-labelledby="p-kc">
+            <div class="card__bar"><span class="card__path">~/projects/kalabhairvas-curse</span><span class="badge">Published</span></div>
+            <div class="project__layout">
+              <!-- TODO (optional): swap this fake title screen for a real screenshot:
+              <img src="kalabhairvas-curse.jpg" alt="Kalabhairva's Curse gameplay screenshot" loading="lazy"> -->
+              <div class="screen" aria-hidden="true">
+                <span class="screen__eye">&#9673;</span>
+                <span class="screen__title">KALABHAIRVA'S<br>CURSE</span>
+                <span class="screen__sub">a megalodon studios game</span>
+                <span class="screen__start">&#9654; press start</span>
+              </div>
+              <div class="project__content">
+                <h3 id="p-kc" class="card__title">Kalabhairva's Curse</h3>
+                <p class="card__desc">A published Roblox horror game built on dread: atmospheric lighting, tense sound and scripted scares that hit when you least expect them. Designed, scripted and shipped under Megalodon Studios.</p>
+                <ul class="tags" role="list" aria-label="Tech stack">
+                  <li class="tag">Roblox Studio</li><li class="tag">Luau</li><li class="tag">game design</li><li class="tag">horror</li>
+                </ul>
+                <div class="card__links">
+                  <a class="tlink" href="#" target="_blank" rel="noopener noreferrer">Play live<span class="sr-only">: Kalabhairva's Curse on Roblox</span> <span aria-hidden="true">&#8599;</span></a>
+                  <a class="tlink" href="#" target="_blank" rel="noopener noreferrer">Code<span class="sr-only">: Kalabhairva's Curse</span> <span aria-hidden="true">&lt;/&gt;</span></a>
+                </div>
+              </div>
+            </div>
+          </article>
+        </li>
+
+        <li class="reveal" style="--d: 90ms">
+          <article class="card tilt" aria-labelledby="p-ll">
+            <div class="card__bar"><span class="card__path">~/projects/lifelink</span><span class="badge">Live · Play</span></div>
+            <div class="project__content">
+              <h3 id="p-ll" class="card__title">LifeLink</h3>
+              <p class="card__desc">A real-time GPS blood donor network for Android that connects people who need blood with nearby donors in seconds. Live on Google Play.</p>
+              <ul class="tags" role="list" aria-label="Tech stack">
+                <li class="tag">Android</li><li class="tag">real-time GPS</li><li class="tag">geolocation</li><li class="tag">maps</li>
+              </ul>
+              <div class="card__links">
+                <a class="tlink" href="#" target="_blank" rel="noopener noreferrer">Google Play<span class="sr-only">: LifeLink</span> <span aria-hidden="true">&#8599;</span></a>
+                <a class="tlink" href="#" target="_blank" rel="noopener noreferrer">Code<span class="sr-only">: LifeLink</span> <span aria-hidden="true">&lt;/&gt;</span></a>
+              </div>
+            </div>
+          </article>
+        </li>
+
+        <li class="reveal">
+          <article class="card tilt" aria-labelledby="p-orbit">
+            <div class="card__bar"><span class="card__path">~/projects/orbit</span><span class="badge">Top 500 / 4,595</span></div>
+            <div class="project__content">
+              <h3 id="p-orbit" class="card__title">Orbit</h3>
+              <p class="card__desc">Child safety for crowded places: geofenced safe zones alert parents the moment a child drifts out of range. Top 500 of 4,595 teams at Omnikon National Hackathon 2026.</p>
+              <ul class="tags" role="list" aria-label="Tech stack">
+                <li class="tag">geofencing</li><li class="tag">mobile</li><li class="tag">real-time alerts</li><li class="tag">location</li>
+              </ul>
+              <div class="card__links">
+                <a class="tlink" href="#" target="_blank" rel="noopener noreferrer">Live<span class="sr-only">: Orbit</span> <span aria-hidden="true">&#8599;</span></a>
+                <a class="tlink" href="#" target="_blank" rel="noopener noreferrer">Code<span class="sr-only">: Orbit</span> <span aria-hidden="true">&lt;/&gt;</span></a>
+              </div>
+            </div>
+          </article>
+        </li>
+
+        <li class="reveal" style="--d: 90ms">
+          <article class="card tilt" aria-labelledby="p-nk">
+            <div class="card__bar"><span class="card__path">~/projects/nirikshan-ai</span><span class="badge">SIH 2026</span></div>
+            <div class="project__content">
+              <h3 id="p-nk" class="card__title">NIRIKSHAN AI</h3>
+              <p class="card__desc">Smart India Hackathon 2026 project: AI-based predictive infrastructure health intelligence that flags structural risk before it turns into failure.</p>
+              <ul class="tags" role="list" aria-label="Tech stack">
+                <li class="tag">Python</li><li class="tag">machine learning</li><li class="tag">Flask</li><li class="tag">predictive analytics</li>
+              </ul>
+              <div class="card__links">
+                <a class="tlink" href="#" target="_blank" rel="noopener noreferrer">Live<span class="sr-only">: NIRIKSHAN AI</span> <span aria-hidden="true">&#8599;</span></a>
+                <a class="tlink" href="#" target="_blank" rel="noopener noreferrer">Code<span class="sr-only">: NIRIKSHAN AI</span> <span aria-hidden="true">&lt;/&gt;</span></a>
+              </div>
+            </div>
+          </article>
+        </li>
+
+        <li class="reveal" style="--d: 180ms">
+          <article class="card tilt" aria-labelledby="p-av">
+            <div class="card__bar"><span class="card__path">~/projects/algoviz</span><span class="badge">Interactive</span></div>
+            <div class="project__content">
+              <h3 id="p-av" class="card__title">AlgoViz</h3>
+              <p class="card__desc">An interactive algorithm visualizer: watch sorting, searching and pathfinding run step by step, with controls for speed and input.</p>
+              <ul class="tags" role="list" aria-label="Tech stack">
+                <li class="tag">JavaScript</li><li class="tag">Canvas</li><li class="tag">algorithms</li><li class="tag">data structures</li>
+              </ul>
+              <div class="card__links">
+                <a class="tlink" href="#" target="_blank" rel="noopener noreferrer">Live<span class="sr-only">: AlgoViz</span> <span aria-hidden="true">&#8599;</span></a>
+                <a class="tlink" href="#" target="_blank" rel="noopener noreferrer">Code<span class="sr-only">: AlgoViz</span> <span aria-hidden="true">&lt;/&gt;</span></a>
+              </div>
+            </div>
+          </article>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ======================= MEGALODON STUDIOS ======================= -->
+  <section id="studio" class="section" aria-labelledby="studio-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <p class="section-kicker"><span aria-hidden="true">//</span> 04 — /dev/megalodon</p>
+        <h2 id="studio-title" class="section-title" data-decrypt>Megalodon Studios</h2>
+      </header>
+
+      <article class="studio panel reveal" aria-labelledby="studio-tagline">
+        <div class="studio__grid">
+          <div class="studio__copy">
+            <p class="file-meta"><span>file: megalodon_studios.dat</span><span>clearance: public</span><span>status: <b>active</b></span></p>
+            <h3 id="studio-tagline" class="studio__title">Games with <span class="hl glow">teeth</span>.</h3>
+            <!-- TODO: tweak the studio pitch (team size, genres, platforms) -->
+            <p>Megalodon Studios is my independent game studio. We make atmospheric, story-driven games that stay with you after you log off — starting with horror on Roblox and scaling up from there. Every project is designed, scripted, animated and shipped in-house.</p>
+            <ul class="pillars" role="list">
+              <li><strong>Atmosphere first</strong><span>Lighting, sound and pacing do the heavy lifting.</span></li>
+              <li><strong>Built to perform</strong><span>Tight scripts, stable frame times, zero jank.</span></li>
+              <li><strong>Ship &amp; iterate</strong><span>Release, listen to players, patch fast.</span></li>
+            </ul>
+            <dl class="facts">
+              <div><dt>founder</dt><dd>Varun</dd></div>
+              <div><dt>hq</dt><dd>Bengaluru, IN</dd></div>
+              <div><dt>shipped</dt><dd>Kalabhairva's Curse</dd></div>
+              <!-- TODO: tease your next project here, or leave it classified -->
+              <div><dt>next</dt><dd>[ classified ]</dd></div>
+            </dl>
+            <div class="studio__actions">
+              <!-- TODO: link to the Megalodon Studios site / Roblox group / itch.io page -->
+              <a class="btn" href="#" target="_blank" rel="noopener noreferrer">Visit the studio <span class="btn__arrow" aria-hidden="true">&#8599;</span></a>
+              <a class="btn btn--ghost" href="#projects">See the games</a>
+            </div>
+          </div>
+
+          <div class="sonar-wrap" aria-hidden="true">
+            <div class="sonar">
+              <span class="sonar__sweep"></span>
+              <span class="blip blip--1"></span>
+              <span class="blip blip--2"><em>M-01</em></span>
+              <span class="blip blip--3"></span>
+            </div>
+            <p class="sonar__read">sonar · depth 3,600 m · contact: megalodon</p>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ======================= FREELANCE ======================= -->
+  <section id="freelance" class="section" aria-labelledby="freelance-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <p class="section-kicker"><span aria-hidden="true">//</span> 05 — ./hire --remote</p>
+        <h2 id="freelance-title" class="section-title" data-decrypt>Freelance</h2>
+        <p class="section-intro">I take on freelance work through Fiverr, from idea to deployed product. Clear scope, fast comms, clean handover.</p>
+      </header>
+
+      <ul class="services" role="list">
+        <li class="reveal">
+          <article class="card tilt svc" aria-labelledby="svc-web">
+            <p class="svc__cmd"><span>$</span> ./build --web-app</p>
+            <svg class="svc__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" focusable="false"><rect x="2.5" y="4" width="19" height="15" rx="1"/><path d="M2.5 8h19M7 12.5l-2 2 2 2M11 16.5l2-4M15 12.5l2 2-2 2"/></svg>
+            <h3 id="svc-web" class="card__title">Web Apps</h3>
+            <p class="card__desc">Full-stack apps, dashboards and APIs with React, Node.js or Flask and PostgreSQL. Dockerised and ready to deploy.</p>
+            <ul class="svc__list" role="list">
+              <li>Landing pages &amp; SPAs</li><li>REST APIs &amp; auth</li><li>Admin dashboards</li>
+            </ul>
+          </article>
+        </li>
+        <li class="reveal" style="--d: 90ms">
+          <article class="card tilt svc" aria-labelledby="svc-bots">
+            <p class="svc__cmd"><span>$</span> ./deploy --bot</p>
+            <svg class="svc__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" focusable="false"><rect x="4" y="7" width="16" height="12" rx="2"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6M2 12v3M22 12v3"/></svg>
+            <h3 id="svc-bots" class="card__title">Bots &amp; Automation</h3>
+            <p class="card__desc">Discord and Telegram bots, scrapers and scripts that turn hours of busywork into a single command.</p>
+            <ul class="svc__list" role="list">
+              <li>Discord &amp; Telegram bots</li><li>Scraping &amp; data pipelines</li><li>Workflow automation</li>
+            </ul>
+          </article>
+        </li>
+        <li class="reveal" style="--d: 180ms">
+          <article class="card tilt svc" aria-labelledby="svc-game">
+            <p class="svc__cmd"><span>$</span> ./spawn --game</p>
+            <svg class="svc__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" focusable="false"><path d="M6 8h12a4 4 0 0 1 4 4v1a4 4 0 0 1-7.2 2.4L14 14h-4l-.8 1.4A4 4 0 0 1 2 13v-1a4 4 0 0 1 4-4z"/><path d="M7 10.5v3M5.5 12h3M16 11h.01M18 13h.01"/></svg>
+            <h3 id="svc-game" class="card__title">Game Dev</h3>
+            <p class="card__desc">Roblox games, systems and scripting, or a playable prototype of the idea you can't stop thinking about.</p>
+            <ul class="svc__list" role="list">
+              <li>Roblox (Luau) systems</li><li>Gameplay prototypes</li><li>UI, animation &amp; polish</li>
+            </ul>
+          </article>
+        </li>
+      </ul>
+
+      <ol class="process reveal" aria-label="How I work">
+        <li><span>01</span> brief</li>
+        <li><span>02</span> prototype</li>
+        <li><span>03</span> iterate</li>
+        <li><span>04</span> ship</li>
+      </ol>
+
+      <div class="hire panel reveal">
+        <div>
+          <h3>Got a project? Let's ship it.</h3>
+          <p>Fixed-scope gigs on Fiverr, or reach out directly for custom work.</p>
+        </div>
+        <div class="hire__actions">
+          <!-- TODO: your Fiverr profile URL -->
+          <a class="btn" href="#" target="_blank" rel="noopener noreferrer">Hire me on Fiverr <span class="btn__arrow" aria-hidden="true">&#8599;</span></a>
+          <a class="btn btn--ghost" href="#contact">Message me</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= CONTACT ======================= -->
+  <section id="contact" class="section" aria-labelledby="contact-title">
+    <div class="container">
+      <header class="section-head reveal">
+        <p class="section-kicker"><span aria-hidden="true">//</span> 06 — open a channel</p>
+        <h2 id="contact-title" class="section-title" data-decrypt>Contact</h2>
+      </header>
+
+      <div class="contact__grid">
+        <!-- Interactive terminal -->
+        <div class="terminal reveal" role="region" aria-label="Interactive terminal">
+          <div class="term-head"><span class="term-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>guest@varun: ~/contact — bash</span></div>
+          <div class="terminal__screen" id="term-screen">
+            <div id="term-output" role="log" aria-live="polite" aria-label="Terminal output">
+              <p class="t-line t-dim">VARUN-OS v26.10 (tty1) — secure channel established.</p>
+              <p class="t-line">Type <span class="t-ok">help</span> to list commands. Psst… there are pills.</p>
+            </div>
+            <form id="term-form" class="terminal__form" autocomplete="off">
+              <span class="terminal__prompt" aria-hidden="true">guest@varun:~$</span>
+              <input id="term-input" class="terminal__input" type="text" name="command" aria-label="Terminal command" aria-describedby="term-hint" spellcheck="false" autocapitalize="off" autocorrect="off" enterkeyhint="send">
+            </form>
+          </div>
+          <div class="chips" role="group" aria-label="Quick commands">
+            <button type="button" class="chip" data-cmd="help">help</button>
+            <button type="button" class="chip" data-cmd="about">about</button>
+            <button type="button" class="chip" data-cmd="skills">skills</button>
+            <button type="button" class="chip" data-cmd="projects">projects</button>
+            <button type="button" class="chip" data-cmd="contact">contact</button>
+            <button type="button" class="chip chip--red" data-cmd="red pill">red pill</button>
+            <button type="button" class="chip chip--blue" data-cmd="blue pill">blue pill</button>
+            <button type="button" class="chip" data-cmd="clear">clear</button>
+          </div>
+          <p id="term-hint" class="sr-only">Type a command and press Enter. Use the up and down arrow keys to browse history. Try help.</p>
+        </div>
+
+        <!-- Social links. TODO: replace each href="#" with your real link (the terminal's `contact` command reads these too) -->
+        <div class="contact__side reveal" style="--d: 120ms">
+          <p class="lead">Have a project, a role or a game idea? Open a channel. I reply fast.</p>
+          <ul class="socials" role="list">
+            <li>
+              <!-- TODO: https://github.com/<your-handle> -->
+              <a class="social" data-social="github" href="#" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+                <span class="social__label">GitHub<small>code &amp; experiments</small></span>
+                <span class="social__arrow" aria-hidden="true">&#8599;</span>
+              </a>
+            </li>
+            <li>
+              <!-- TODO: https://www.linkedin.com/in/<your-handle> -->
+              <a class="social" data-social="linkedin" href="#" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+                <span class="social__label">LinkedIn<small>professional profile</small></span>
+                <span class="social__arrow" aria-hidden="true">&#8599;</span>
+              </a>
+            </li>
+            <li>
+              <!-- TODO: mailto:you@example.com -->
+              <a class="social" data-social="email" href="#">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><rect x="2.5" y="4.5" width="19" height="15" rx="1"/><path d="M3 6l9 7 9-7"/></svg>
+                <span class="social__label">Email<small>fastest reply</small></span>
+                <span class="social__arrow" aria-hidden="true">&#8599;</span>
+              </a>
+            </li>
+            <li>
+              <!-- TODO: https://www.fiverr.com/<your-handle> -->
+              <a class="social" data-social="fiverr" href="#" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M9 17v-6.5a2 2 0 0 1 2-2h1M7.5 11.5h4M15 11v6M15 8v.01"/></svg>
+                <span class="social__label">Fiverr<small>hire me for a gig</small></span>
+                <span class="social__arrow" aria-hidden="true">&#8599;</span>
+              </a>
+            </li>
+          </ul>
+          <p class="contact__hint">Tip: the terminal takes commands. Try <kbd>help</kbd>, <kbd>sudo</kbd> or <kbd>red pill</kbd>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ======================= FOOTER ======================= -->
+<footer class="footer">
+  <div class="container">
+    <p class="footer__wake"><span class="sr-only">Wake up, Neo… The Matrix has you. Follow the white rabbit.</span><span id="wake" aria-hidden="true">Wake up, Neo...</span><span class="cursor" aria-hidden="true"></span></p>
+    <div class="footer__row">
+      <p>&copy; <span id="year">2026</span> Varun · Megalodon Studios. Hand-coded; no frameworks were harmed.</p>
+      <p><span class="sr-only">Konami code: </span><kbd>&uarr;</kbd><kbd>&uarr;</kbd><kbd>&darr;</kbd><kbd>&darr;</kbd><kbd>&larr;</kbd><kbd>&rarr;</kbd><kbd>&larr;</kbd><kbd>&rarr;</kbd><kbd>B</kbd><kbd>A</kbd></p>
+      <a class="footer__top" href="#home" aria-label="Back to top">cd ~ <span aria-hidden="true">&nbsp;&uarr;</span></a>
+    </div>
+  </div>
+</footer>
+
+<!-- Toast + CRT overlay -->
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div class="crt" aria-hidden="true"><div class="crt__roll"></div><div class="crt__flicker"></div><div class="crt__flash"></div></div>
+
+<script>
+/* ==========================================================================
+   JS modules
+   0 Utilities · 1 Matrix rain · 2 Theme (pills) · 3 Boot sequence
+   4 Typewriter + HUD · 5 Nav · 6 Reveal + decrypt · 7 Card tilt
+   8 Terminal · 9 Konami · 10 Footer wake-up · 11 Misc · 12 Init
+   ========================================================================== */
+(() => {
+  'use strict';
+
+  /* ---------- 0. Utilities ---------- */
+  const doc = document;
+  const root = doc.documentElement;
+  const $ = (sel, ctx = doc) => ctx.querySelector(sel);
+  const $$ = (sel, ctx = doc) => Array.from(ctx.querySelectorAll(sel));
+  const rand = (min, max) => Math.random() * (max - min) + min;
+  const pick = (arr) => arr[(Math.random() * arr.length) | 0];
+  const clamp01 = (n) => Math.min(1, Math.max(0, n));
+
+  const motionMQ = matchMedia('(prefers-reduced-motion: reduce)');
+  const reduced = () => motionMQ.matches;
+  const onMQChange = (mq, fn) => (mq.addEventListener ? mq.addEventListener('change', fn) : mq.addListener(fn));
+
+  const session = {
+    get(key) { try { return sessionStorage.getItem(key); } catch (e) { return null; } },
+    set(key, val) { try { sessionStorage.setItem(key, val); } catch (e) { /* storage blocked: ignore */ } }
+  };
+
+  const Toast = (() => {
+    const el = $('#toast');
+    let timer = 0;
+    return {
+      show(msg, ms = 2800) {
+        el.textContent = msg;
+        el.classList.add('is-visible');
+        clearTimeout(timer);
+        timer = setTimeout(() => el.classList.remove('is-visible'), ms);
+      }
+    };
+  })();
+
+  /* Brief full-screen flash + jolt (theme switch, Konami) */
+  let flashTimer = 0;
+  function flash() {
+    if (reduced()) return;
+    root.classList.remove('flash');
+    void root.offsetWidth; // restart the CSS animation
+    root.classList.add('flash');
+    clearTimeout(flashTimer);
+    flashTimer = setTimeout(() => root.classList.remove('flash'), 750);
+  }
+
+  /* ---------- 1. Matrix rain ---------- */
+  const Rain = (() => {
+    const canvas = $('#rain');
+    const ctx = canvas.getContext('2d');
+    const noop = { setPalette() {}, burst() { return false; } };
+    if (!ctx) return noop;
+
+    // Half-width katakana (U+FF66–U+FF9D) + digits (weighted a little heavier)
+    const GLYPHS = [];
+    for (let c = 0xff66; c <= 0xff9d; c++) GLYPHS.push(String.fromCharCode(c));
+    GLYPHS.push(...'01234567890123456789');
+    const glyph = () => GLYPHS[(Math.random() * GLYPHS.length) | 0];
+
+    const FRAME_MS = 1000 / 30;   // capped at 30fps — plenty for rain, kind to batteries
+    const FADE = 0.08;            // trail fade per frame
+    const MAX_DPR = 2;
+
+    let w = 0, h = 0, dpr = 1, size = 16, cols = 0, rows = 0;
+    let drops = [];
+    let raf = 0, last = 0, running = false;
+    let speedMult = 1, bursting = false, burstTimer = 0, resizeTimer = 0;
+    let colors = { trail: '#00ff41', head: '#e2ffe6' };
+
+    function makeDrop(col, scatter, extra = false) {
+      const y = scatter ? rand(-rows, rows) : rand(-rows * 0.8, 0);
+      return { col, y, row: Math.floor(y), speed: rand(0.45, 1.05), ch: glyph(), extra };
+    }
+
+    function resize() {
+      const cw = canvas.clientWidth, ch = canvas.clientHeight;
+      const nd = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+      if (cw === w && ch === h && nd === dpr) return;
+      w = cw; h = ch; dpr = nd;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // resizing resets context state, so re-apply everything
+      size = w < 600 ? 14 : 16;
+      ctx.font = `${size}px "Fira Code", "MS Gothic", "Hiragino Kaku Gothic ProN", "Noto Sans JP", monospace`;
+      ctx.textBaseline = 'top';
+      cols = Math.ceil(w / size);
+      rows = Math.ceil(h / size);
+      // Keep existing columns, add or drop the rest
+      drops = drops.filter((d) => d.col < cols);
+      const have = new Set(drops.filter((d) => !d.extra).map((d) => d.col));
+      for (let c = 0; c < cols; c++) if (!have.has(c)) drops.push(makeDrop(c, true));
+      if (reduced()) drawStatic();
+    }
+
+    function tick() {
+      // Fade the whole canvas toward transparent to leave trails
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillStyle = `rgba(0,0,0,${FADE})`;
+      ctx.fillRect(0, 0, w, h);
+      ctx.globalCompositeOperation = 'source-over';
+
+      for (let i = drops.length - 1; i >= 0; i--) {
+        const d = drops[i];
+        d.y += d.speed * speedMult;
+        const row = Math.floor(d.y);
+
+        if (row !== d.row) {
+          const x = d.col * size;
+          // Old head becomes a normal trail glyph
+          if (d.row >= 0 && d.row < rows) {
+            ctx.clearRect(x, d.row * size, size, size);
+            ctx.fillStyle = colors.trail;
+            ctx.fillText(d.ch, x, d.row * size);
+          }
+          // Fill rows skipped by fast drops so trails stay continuous
+          ctx.fillStyle = colors.trail;
+          for (let r = Math.max(0, d.row + 1); r < row && r < rows; r++) ctx.fillText(glyph(), x, r * size);
+          // New, brighter head
+          d.ch = glyph();
+          d.row = row;
+          if (row >= 0 && row < rows) {
+            ctx.fillStyle = colors.head;
+            ctx.fillText(d.ch, x, row * size);
+          }
+        }
+
+        if (d.row >= rows) {
+          if (d.extra && !bursting) { drops.splice(i, 1); continue; }
+          if (Math.random() > 0.975) { // stagger respawns
+            d.y = rand(-24, 0);
+            d.row = Math.floor(d.y);
+            d.speed = rand(0.45, 1.05);
+          }
+        }
+      }
+    }
+
+    // Reduced-motion fallback: a static, faint grid with scattered glyphs
+    function drawStatic() {
+      ctx.clearRect(0, 0, w, h);
+      const step = size * 2;
+      ctx.strokeStyle = colors.trail;
+      ctx.lineWidth = 1;
+      ctx.globalAlpha = 0.14;
+      ctx.beginPath();
+      for (let x = 0.5; x < w; x += step) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
+      for (let y = 0.5; y < h; y += step) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
+      ctx.stroke();
+      ctx.fillStyle = colors.trail;
+      ctx.globalAlpha = 0.4;
+      for (let x = 0; x < w; x += step) {
+        for (let y = 0; y < h; y += step) if (Math.random() < 0.1) ctx.fillText(glyph(), x + size / 2, y + size / 2);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function frame(t) {
+      raf = requestAnimationFrame(frame);
+      const elapsed = t - last;
+      if (elapsed < FRAME_MS) return;
+      last = t - (elapsed % FRAME_MS);
+      tick();
+    }
+    function start() {
+      if (running || reduced() || doc.hidden) return;
+      running = true;
+      last = performance.now();
+      raf = requestAnimationFrame(frame);
+    }
+    function stop() {
+      running = false;
+      cancelAnimationFrame(raf);
+      raf = 0;
+    }
+
+    function setPalette(trail, head) {
+      if (trail) colors.trail = trail;
+      if (head) colors.head = head;
+      if (reduced()) drawStatic();
+    }
+
+    // Konami: faster, denser rain for a few seconds
+    function burst(ms = 6500) {
+      if (reduced()) return false;
+      bursting = true;
+      speedMult = 2.3;
+      if (drops.length < cols * 4) {
+        for (let c = 0; c < cols; c++) {
+          drops.push(makeDrop(c, false, true));
+          if (Math.random() < 0.6) drops.push(makeDrop(c, false, true));
+        }
+      }
+      root.classList.add('overload');
+      clearTimeout(burstTimer);
+      burstTimer = setTimeout(() => {
+        bursting = false;
+        speedMult = 1;
+        root.classList.remove('overload');
+      }, ms);
+      start();
+      return true;
+    }
+
+    resize();
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(resize, 150);
+    }, { passive: true });
+    doc.addEventListener('visibilitychange', () => (doc.hidden ? stop() : start()));
+    onMQChange(motionMQ, () => {
+      if (reduced()) { stop(); drawStatic(); }
+      else { ctx.clearRect(0, 0, w, h); start(); }
+    });
+    if (reduced()) drawStatic(); else start();
+
+    return { setPalette, burst };
+  })();
+
+  /* ---------- 2. Theme: red pill / blue pill ---------- */
+  const Theme = (() => {
+    const meta = $('meta[name="theme-color"]');
+    function apply(name) {
+      const red = name === 'red';
+      if (red) root.dataset.theme = 'red'; else delete root.dataset.theme;
+      meta.setAttribute('content', red ? '#0b0202' : '#020b05');
+      const cs = getComputedStyle(root);
+      Rain.setPalette(cs.getPropertyValue('--rain-trail').trim(), cs.getPropertyValue('--rain-head').trim());
+      flash();
+    }
+    return { apply, current: () => (root.dataset.theme === 'red' ? 'red' : 'green') };
+  })();
+
+  /* ---------- 3. Boot sequence ---------- */
+  const Boot = (() => {
+    const done = () => doc.dispatchEvent(new CustomEvent('boot:done'));
+
+    function run() {
+      const el = $('#boot');
+      if (!el || !root.classList.contains('booting')) {
+        if (el) el.remove();
+        done();
+        return;
+      }
+
+      const site = $$('.nav, main, .footer');
+      site.forEach((n) => { n.inert = true; });
+
+      const lines = $$('.boot__line', el).map((line) => ({ line, text: line.dataset.text, out: $('.boot__text', line), shown: -1 }));
+      const total = lines.reduce((n, l) => n + l.text.length, 0);
+      const bar = $('.boot__progress i', el);
+      const skipBtn = $('.boot__skip', el);
+      const TYPE_MS = reduced() ? 0 : 1750; // ~2.5s total with the hold + fade
+      let raf = 0, t0 = 0, finished = false;
+      const timers = [];
+
+      function render(count) {
+        let left = count;
+        lines.forEach((l) => {
+          const show = Math.max(0, Math.min(l.text.length, left));
+          left -= l.text.length;
+          if (show === l.shown) return;
+          l.shown = show;
+          l.out.textContent = l.text.slice(0, show);
+          l.line.classList.toggle('is-active', show > 0 && show < l.text.length);
+          l.line.classList.toggle('is-complete', show === l.text.length);
+        });
+      }
+
+      function step(now) {
+        if (!t0) t0 = now;
+        const p = TYPE_MS ? clamp01((now - t0) / TYPE_MS) : 1;
+        render(Math.round(p * total));
+        bar.style.transform = `scaleX(${p})`;
+        if (p < 1) raf = requestAnimationFrame(step);
+        else {
+          el.classList.add('is-granted');
+          timers.push(setTimeout(finish, 450));
+        }
+      }
+
+      function onKey(e) { if (e.key === 'Escape') finish(true); }
+
+      function finish(fast) {
+        if (finished) return;
+        finished = true;
+        cancelAnimationFrame(raf);
+        timers.forEach(clearTimeout);
+        doc.removeEventListener('keydown', onKey);
+        session.set('vp-booted', '1');
+        el.classList.add('is-done');
+        if (fast === true) el.classList.add('is-fast');
+        root.classList.remove('booting');
+        site.forEach((n) => { n.inert = false; });
+        setTimeout(() => el.remove(), 700);
+        done();
+      }
+
+      skipBtn.addEventListener('click', () => finish(true));
+      doc.addEventListener('keydown', onKey);
+      skipBtn.focus({ preventScroll: true });
+      raf = requestAnimationFrame(step);
+    }
+
+    return { run };
+  })();
+
+  /* ---------- 4. Hero typewriter + HUD uptime ---------- */
+  const Typewriter = (() => {
+    const el = $('#typed');
+    const WORDS = ['Full-Stack Developer', 'Game Developer', 'Builder of Things'];
+    let i = 0, j = WORDS[0].length, deleting = true, timer = 0, visible = true, started = false, paused = false;
+
+    function loop() {
+      if (!visible) { paused = true; return; }
+      const word = WORDS[i];
+      if (deleting) {
+        j--;
+        el.textContent = word.slice(0, j);
+        if (j <= 0) { deleting = false; i = (i + 1) % WORDS.length; timer = setTimeout(loop, 380); return; }
+        timer = setTimeout(loop, 32);
+      } else {
+        j++;
+        el.textContent = word.slice(0, j);
+        if (j >= word.length) { deleting = true; timer = setTimeout(loop, 1800); return; }
+        timer = setTimeout(loop, rand(55, 100));
+      }
+    }
+
+    function start() {
+      if (!el || started) return;
+      started = true;
+      if (reduced()) { el.textContent = WORDS[0]; return; }
+      timer = setTimeout(loop, 1400); // hold the first role, then start cycling
+    }
+
+    // Pause typing while the hero is off-screen
+    const hero = $('#home');
+    if (hero && 'IntersectionObserver' in window) {
+      new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting;
+        if (visible && paused) { paused = false; clearTimeout(timer); loop(); }
+      }).observe(hero);
+    }
+
+    // HUD uptime counter
+    const uptime = $('#uptime');
+    if (uptime) {
+      const t0 = Date.now();
+      const pad = (n) => String(n).padStart(2, '0');
+      setInterval(() => {
+        if (doc.hidden || !visible) return;
+        const s = ((Date.now() - t0) / 1000) | 0;
+        uptime.textContent = `${pad((s / 3600) | 0)}:${pad(((s / 60) | 0) % 60)}:${pad(s % 60)}`;
+      }, 1000);
+    }
+
+    return { start };
+  })();
+
+  /* ---------- 5. Nav: mobile menu + active section ---------- */
+  (() => {
+    const nav = $('.nav');
+    const toggle = $('.nav__toggle');
+    const menu = $('#nav-menu');
+    const links = $$('.nav__link');
+    const pathEl = $('#nav-path');
+    const desktop = matchMedia('(min-width: 900px)');
+    const isOpen = () => nav.classList.contains('is-open');
+
+    function setOpen(open) {
+      nav.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    }
+
+    toggle.addEventListener('click', () => setOpen(!isOpen()));
+    menu.addEventListener('click', (e) => { if (e.target.closest('a')) setOpen(false); });
+    doc.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isOpen()) { setOpen(false); toggle.focus(); }
+    });
+    doc.addEventListener('click', (e) => { if (isOpen() && !nav.contains(e.target)) setOpen(false); });
+    onMQChange(desktop, (e) => { if (e.matches) setOpen(false); });
+
+    function setActive(id) {
+      links.forEach((a) => {
+        const on = a.hash === `#${id}`;
+        a.classList.toggle('is-active', on);
+        if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+      });
+      pathEl.textContent = id === 'home' ? '' : `/${id}`;
+    }
+
+    if ('IntersectionObserver' in window) {
+      // A section is "active" when it crosses the middle of the viewport
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) setActive(e.target.id); });
+      }, { rootMargin: '-45% 0px -54% 0px' });
+      $$('main > section[id]').forEach((s) => io.observe(s));
+    }
+  })();
+
+  /* ---------- 6. Scroll reveal + decrypting headings ---------- */
+  const Reveal = (() => {
+    const SCRAMBLE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&@*+=<>/\\|';
+
+    // Real text for screen readers, animated copy for eyes
+    const heads = $$('[data-decrypt]');
+    heads.forEach((h) => {
+      const text = h.textContent.trim();
+      const sr = doc.createElement('span');
+      sr.className = 'sr-only';
+      sr.textContent = text;
+      const vis = doc.createElement('span');
+      vis.setAttribute('aria-hidden', 'true');
+      vis.textContent = text;
+      h.replaceChildren(sr, vis);
+      h._decrypt = { vis, text };
+    });
+
+    function decrypt(h) {
+      const data = h._decrypt;
+      if (!data || data.running) return;
+      const { vis, text } = data;
+      if (reduced()) { vis.textContent = text; return; }
+      data.running = true;
+      const duration = 700 + text.length * 35;
+      const thresholds = Array.from(text, (_, i) => (i / text.length) * 0.75 + Math.random() * 0.25);
+      const t0 = performance.now();
+      let lastSwap = 0;
+      (function frame(now) {
+        const p = clamp01((now - t0) / duration);
+        if (now - lastSwap > 45 || p === 1) {
+          lastSwap = now;
+          let out = '';
+          for (let i = 0; i < text.length; i++) {
+            const c = text[i];
+            out += c === ' ' || p >= thresholds[i] ? c : SCRAMBLE[(Math.random() * SCRAMBLE.length) | 0];
+          }
+          vis.textContent = out;
+        }
+        if (p < 1) requestAnimationFrame(frame);
+        else { vis.textContent = text; data.running = false; }
+      })(t0);
+    }
+
+    function init() {
+      const targets = $$('.reveal');
+      const show = (el) => {
+        el.classList.add('is-visible');
+        $$('[data-decrypt]', el).forEach(decrypt);
+      };
+      if (!('IntersectionObserver' in window)) { targets.forEach(show); return; }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          show(e.target);
+          io.unobserve(e.target);
+        });
+      }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
+      targets.forEach((t) => io.observe(t));
+    }
+
+    return { init };
+  })();
+
+  /* ---------- 7. Card tilt (mouse only, respects reduced motion) ---------- */
+  (() => {
+    const finePointer = matchMedia('(hover: hover) and (pointer: fine)');
+    const MAX_DEG = 7;
+
+    $$('.tilt').forEach((card) => {
+      let box = null, raf = 0, px = 0.5, py = 0.5;
+
+      const apply = () => {
+        raf = 0;
+        card.style.setProperty('--rx', `${((0.5 - py) * MAX_DEG).toFixed(2)}deg`);
+        card.style.setProperty('--ry', `${((px - 0.5) * MAX_DEG).toFixed(2)}deg`);
+        card.style.setProperty('--mx', `${(px * 100).toFixed(1)}%`);
+        card.style.setProperty('--my', `${(py * 100).toFixed(1)}%`);
+      };
+
+      card.addEventListener('pointerenter', (e) => {
+        if (e.pointerType !== 'mouse' || !finePointer.matches || reduced()) return;
+        // Measure once per hover (document coords, so scrolling mid-hover stays accurate)
+        const r = card.getBoundingClientRect();
+        box = { left: r.left + scrollX, top: r.top + scrollY, w: r.width, h: r.height };
+        card.classList.add('is-tilting');
+      });
+
+      card.addEventListener('pointermove', (e) => {
+        if (!box) return;
+        px = clamp01((e.pageX - box.left) / box.w);
+        py = clamp01((e.pageY - box.top) / box.h);
+        if (!raf) raf = requestAnimationFrame(apply);
+      }, { passive: true });
+
+      card.addEventListener('pointerleave', () => {
+        if (!box) return;
+        box = null;
+        cancelAnimationFrame(raf);
+        raf = 0;
+        card.classList.remove('is-tilting');
+        card.style.removeProperty('--rx');
+        card.style.removeProperty('--ry');
+      });
+    });
+  })();
+
+  /* ---------- 8. Interactive terminal ---------- */
+  const Terminal = (() => {
+    const screen = $('#term-screen');
+    const out = $('#term-output');
+    const form = $('#term-form');
+    const input = $('#term-input');
+    if (!screen || !out || !form || !input) return null;
+
+    const MAX_LINES = 250;
+    const history = [];
+    let hIndex = 0, draft = '';
+
+    // -- output helpers (DOM nodes only, never innerHTML, so `echo` can't inject markup)
+    const span = (text, cls) => { const s = doc.createElement('span'); s.className = cls; s.textContent = text; return s; };
+    const link = (text, href) => {
+      const a = doc.createElement('a');
+      a.href = href;
+      a.textContent = text;
+      if (/^https?:/.test(href)) { a.target = '_blank'; a.rel = 'noopener noreferrer'; }
+      return a;
+    };
+    function print(content, cls) {
+      const p = doc.createElement('p');
+      p.className = cls ? `t-line ${cls}` : 't-line';
+      if (Array.isArray(content)) p.append(...content); else p.textContent = content;
+      out.append(p);
+    }
+    const row = (key, val, width = 12) => print([span(key.padEnd(width), 't-ok'), val]);
+
+    const SUDO_LINES = [
+      'guest is not in the sudoers file. This incident will be reported.',
+      'Permission denied. Nice try, Mr. Anderson.',
+      'Access denied. The Architect has been notified.',
+      'There is no spoon. There is also no root access.',
+      'sudo: you need to be The One to do that.'
+    ];
+
+    const COMMANDS = {
+      help() {
+        print('Available commands:', 't-dim');
+        [
+          ['help', 'show this list'],
+          ['about', 'who is Varun?'],
+          ['skills', 'list the loaded modules'],
+          ['projects', 'list featured projects'],
+          ['contact', 'ways to reach me'],
+          ['clear', 'clear the screen'],
+          ['sudo', 'try it. I dare you.'],
+          ['red pill', 'see how deep the rabbit hole goes'],
+          ['blue pill', 'go back to sleep (green theme)']
+        ].forEach(([k, v]) => row(`  ${k}`, v));
+        print('extras: whoami, ls, date, echo <text>, history, matrix', 't-dim');
+      },
+      about() {
+        print('Varun — BCA student @ Jain (Deemed-to-be) University, Bengaluru.');
+        print('Full-stack developer: React · Node.js · Flask · PostgreSQL · Docker.');
+        print('Founder of Megalodon Studios. Into game dev, animation/design and HPC.');
+        print([link('→ cd ../about', '#about')]);
+      },
+      skills() {
+        row('frontend', 'React, JavaScript, TypeScript, HTML/CSS');
+        row('backend', 'Node.js, Express, Python/Flask, REST');
+        row('data/ops', 'PostgreSQL, Docker, Git, Linux');
+        row('gamedev', 'Roblox Studio (Luau), game design, animation, UI/UX');
+        row('hpc', 'C/C++, OpenMP/MPI, CUDA, profiling');
+        print([link('→ cd ../skills', '#skills')]);
+      },
+      projects() {
+        [
+          ['[01]', "Kalabhairva's Curse — Roblox horror game (published)"],
+          ['[02]', 'LifeLink — real-time GPS blood donor app (Google Play)'],
+          ['[03]', 'Orbit — geofenced child safety app (Top 500 / 4,595, Omnikon 2026)'],
+          ['[04]', 'NIRIKSHAN AI — predictive infrastructure health (SIH 2026)'],
+          ['[05]', 'AlgoViz — interactive algorithm visualizer']
+        ].forEach(([k, v]) => row(k, v, 6));
+        print([link('→ cd ../projects', '#projects')]);
+      },
+      contact() {
+        const socials = $$('[data-social]');
+        socials.forEach((a) => {
+          const href = a.getAttribute('href');
+          const shown = href === '#'
+            ? '[ link coming soon ]'
+            : href.replace(/^mailto:/, '').replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+          row(a.dataset.social, link(shown, href));
+        });
+        print('Or just use the links beside this terminal.', 't-dim');
+      },
+      clear() { out.replaceChildren(); },
+      sudo() {
+        print('[sudo] password for guest: ********', 't-dim');
+        print(pick(SUDO_LINES), 't-err');
+      },
+      red() {
+        if (Theme.current() === 'red') { print("You've already taken it. There's no going back... (try 'blue pill')", 't-dim'); return; }
+        print('Swallowing red pill...', 't-dim');
+        print('You stay in Wonderland, and I show you how deep the rabbit hole goes.', 't-ok');
+        Theme.apply('red');
+        print('[theme] matrix.red loaded', 't-dim');
+      },
+      blue() {
+        if (Theme.current() === 'green') { print("You're already asleep. Believe whatever you want to believe.", 't-dim'); return; }
+        print('The story ends. You wake up in your bed...', 't-ok');
+        Theme.apply('green');
+        print('[theme] matrix.green restored', 't-dim');
+      },
+      whoami() { print("guest — but you're here for a reason."); },
+      ls() { print('about.txt  skills.json  projects/  megalodon-studios/  freelance.md  contact.sh'); },
+      date() { print(new Date().toString()); },
+      echo(args) { print(args || ''); },
+      history() { history.forEach((cmd, i) => print(`${String(i + 1).padStart(4)}  ${cmd}`)); },
+      matrix() { print(Konami.trigger() ? 'Rain intensifying...' : 'Motion is reduced on your system; the rain stays calm.', 't-ok'); },
+      exit() { print('There is no exit. Only the Matrix.', 't-dim'); },
+      hello() { print('Hello, human.'); }
+    };
+    const ALIASES = {
+      'red pill': 'red', redpill: 'red', 'take red pill': 'red', 'take the red pill': 'red',
+      'blue pill': 'blue', bluepill: 'blue', 'take blue pill': 'blue', 'take the blue pill': 'blue',
+      hi: 'hello', konami: 'matrix', cls: 'clear', '?': 'help', man: 'help'
+    };
+    const COMPLETIONS = ['help', 'about', 'skills', 'projects', 'contact', 'clear', 'sudo', 'red pill', 'blue pill', 'whoami', 'ls', 'date', 'echo', 'history', 'matrix'];
+
+    function run(raw) {
+      const cmd = raw.trim().replace(/\s+/g, ' ');
+      print([span('guest@varun:~$ ', 't-prompt'), cmd], 't-cmd');
+      if (cmd) {
+        if (history[history.length - 1] !== cmd) history.push(cmd);
+        if (history.length > 50) history.shift();
+      }
+      hIndex = history.length;
+      draft = '';
+
+      if (cmd) {
+        const lower = cmd.toLowerCase();
+        const [first, ...rest] = cmd.split(' ');
+        const name = ALIASES[lower] || ALIASES[first.toLowerCase()] || first.toLowerCase();
+        if (name === 'sudo') COMMANDS.sudo();
+        else if (Object.prototype.hasOwnProperty.call(COMMANDS, name)) COMMANDS[name](rest.join(' '));
+        else print(`command not found: ${first}. Type 'help' for a list.`, 't-err');
+      }
+
+      while (out.childElementCount > MAX_LINES) out.firstElementChild.remove();
+      screen.scrollTop = screen.scrollHeight;
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      run(input.value);
+      input.value = '';
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp') {
+        if (!history.length || hIndex === 0) return;
+        e.preventDefault();
+        if (hIndex === history.length) draft = input.value;
+        hIndex--;
+        input.value = history[hIndex];
+        requestAnimationFrame(() => input.setSelectionRange(input.value.length, input.value.length));
+      } else if (e.key === 'ArrowDown') {
+        if (hIndex >= history.length) return;
+        e.preventDefault();
+        hIndex++;
+        input.value = hIndex === history.length ? draft : history[hIndex];
+      } else if (e.key === 'Tab' && input.value.trim()) {
+        // Autocomplete; an empty prompt lets Tab move focus as usual
+        const v = input.value.trim().toLowerCase();
+        const match = COMPLETIONS.find((c) => c.startsWith(v) && c !== v);
+        if (match) { e.preventDefault(); input.value = match; }
+      } else if (e.key === 'l' && e.ctrlKey) {
+        e.preventDefault();
+        COMMANDS.clear();
+      }
+    });
+
+    // Click anywhere in the screen to focus the prompt (unless selecting text or clicking a link)
+    screen.addEventListener('click', (e) => {
+      if (e.target.closest('a') || String(getSelection())) return;
+      input.focus({ preventScroll: true });
+    });
+
+    $$('.chip[data-cmd]').forEach((btn) => btn.addEventListener('click', () => run(btn.dataset.cmd)));
+
+    return { run };
+  })();
+
+  /* ---------- 9. Konami code ---------- */
+  const Konami = (() => {
+    const SEQ = 'arrowup arrowup arrowdown arrowdown arrowleft arrowright arrowleft arrowright b a';
+    const keys = [];
+
+    function trigger() {
+      const ok = Rain.burst();
+      flash();
+      Toast.show(ok ? '>> KONAMI ACCEPTED — SYSTEM OVERLOAD' : '>> KONAMI ACCEPTED (motion reduced)');
+      return ok;
+    }
+
+    doc.addEventListener('keydown', (e) => {
+      if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+      keys.push((e.key || '').toLowerCase());
+      if (keys.length > 10) keys.shift();
+      if (keys.join(' ') === SEQ) { keys.length = 0; trigger(); }
+    });
+
+    return { trigger };
+  })();
+
+  /* ---------- 10. Footer wake-up loop ---------- */
+  (() => {
+    const el = $('#wake');
+    if (!el || reduced() || !('IntersectionObserver' in window)) return;
+    const LINES = ['Wake up, Neo...', 'The Matrix has you...', 'Follow the white rabbit.', 'Knock, knock.'];
+    let i = 0, j = 0, timer = 0, active = false;
+
+    function step() {
+      if (!active) return;
+      const text = LINES[i];
+      if (j <= text.length) {
+        el.textContent = text.slice(0, j);
+        j++;
+        timer = setTimeout(step, j > text.length ? 2400 : rand(60, 120));
+      } else {
+        j = 0;
+        i = (i + 1) % LINES.length;
+        el.textContent = '';
+        timer = setTimeout(step, 450);
+      }
+    }
+
+    new IntersectionObserver(([entry]) => {
+      active = entry.isIntersecting;
+      clearTimeout(timer);
+      if (active) step();
+    }).observe(el);
+  })();
+
+  /* ---------- 11. Misc: placeholder links, year ---------- */
+  // Unfilled links (href="#") show a friendly notice instead of jumping to the top
+  doc.addEventListener('click', (e) => {
+    const a = e.target.closest && e.target.closest('a[href="#"]');
+    if (!a) return;
+    e.preventDefault();
+    Toast.show('// link offline — coming soon');
+  });
+
+  const year = $('#year');
+  if (year) year.textContent = String(new Date().getFullYear());
+
+  /* ---------- 12. Init ---------- */
+  doc.addEventListener('boot:done', () => {
+    Reveal.init();
+    Typewriter.start();
+  }, { once: true });
+  Boot.run();
+})();
+</script>
+</body>
+</html>
