@@ -376,79 +376,236 @@ html.booting .boot, .boot.is-done { display: flex; }
 .boot__skip:focus-visible { border-color: var(--accent); box-shadow: var(--glow-sm); }
 
 /* ---------- 3b. Pill choice screen (no visible text by design) ---------- */
+/* Back to front: page rain (+ a far rain layer) · darkness · room tint · vignette · near rain layer ·
+   stage (spotlight, glossy floor, platforms, pills, reflections) · targeting brackets · particles · shockwave · flashes.
+   Everything that moves animates transform or opacity only. */
 .choice {
-  position: fixed; inset: 0; z-index: 95;
-  display: none; place-items: center; padding: 24px;
-  background: radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.85) 75%);
+  --pw: clamp(150px, 16vw, 280px);   /* pill width; capsules are 2.4:1 */
+  --tilt: -25deg;
+  position: fixed; inset: 0; z-index: 95; overflow: hidden;
+  display: none; place-items: center;
   transition: opacity 0.6s ease, visibility 0s linear 0.6s;
 }
+.choice:focus, .choice:focus-visible { outline: none; }
 html.choosing .choice, .choice.is-leaving { display: grid; }
 .choice.is-leaving { opacity: 0; visibility: hidden; }
 html.choosing main, html.choosing .nav, html.choosing .footer, html.choosing .skip-link { visibility: hidden; }
+html.choosing .nav__menu { visibility: hidden !important; }
 html.choosing #rain { opacity: 0.5; }
 
-.choice__pills { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 5vw, 80px); }
-@media (max-width: 480px) { .choice { padding: 12px; } .pill-btn { padding: 6px; } }
-html.choosing .nav__menu { visibility: hidden !important; }
+/* Rain depth layers (mouse only): far = small, dim, blurred; near = big, sparse, sharp */
+.rain-layer { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.rain-layer--far { z-index: 0; opacity: 0.3; } /* rendered at half resolution: the upscale is the blur */
+.rain-layer--near { position: absolute; opacity: 0.4; }
+
+.choice__dark, .choice__tint, .choice__tint i, .choice__vignette, .choice__brackets,
+.choice__fx, .choice__flash, .choice__glitch { position: absolute; inset: 0; pointer-events: none; }
+.choice__dark { background: #000; opacity: 0; }
+.choice__tint i { opacity: 0; transition: opacity 0.6s ease; }
+.choice__tint .tint--red { background: radial-gradient(62% 58% at 50% 50%, rgba(255, 23, 68, 0.24), transparent 72%); }
+.choice__tint .tint--blue { background: radial-gradient(62% 58% at 50% 50%, rgba(41, 121, 255, 0.26), transparent 72%); }
+.choice__tint .tint--green { background: radial-gradient(62% 58% at 50% 50%, rgba(0, 255, 65, 0.18), transparent 72%); }
+.choice[data-active="red"] .tint--red, .choice[data-active="blue"] .tint--blue, .choice[data-active="green"] .tint--green { opacity: 1; }
+.choice__vignette { background: radial-gradient(ellipse 56% 62% at 50% 50%, transparent 0%, rgba(0, 0, 0, 0.5) 56%, rgba(0, 0, 0, 0.95) 100%); }
+
+/* ---- Stage ---- */
+.choice__scene { position: relative; --floor-off: calc(var(--pw) * 0.33); translate: 0 5vh; }
+.choice__pills { position: relative; display: flex; align-items: flex-start; justify-content: center; gap: clamp(12px, 3vw, 56px); }
+
+/* Spotlight: a soft-edged cone from the top centre of the screen; colour variants cross-fade with the active pill */
+.choice__spot { position: absolute; inset: 0; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.35), #000 55%); mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.35), #000 55%); }
+.choice__spot i { --c: 255, 255, 255; --a: 0.11; position: absolute; inset: 0; opacity: 0; transition: opacity 0.6s ease;
+  background: conic-gradient(from 146deg at 50% -6%, transparent 0deg, rgba(var(--c), calc(var(--a) * 0.6)) 10deg, rgba(var(--c), var(--a)) 22deg,
+    rgba(var(--c), calc(var(--a) * 1.15)) 34deg, rgba(var(--c), var(--a)) 46deg, rgba(var(--c), calc(var(--a) * 0.6)) 58deg, transparent 68deg); }
+.choice__spot .spot--white { opacity: 1; }
+.choice__spot .spot--red { --c: 255, 23, 68; --a: 0.14; }
+.choice__spot .spot--blue { --c: 41, 121, 255; --a: 0.16; }
+.choice__spot .spot--green { --c: 0, 255, 65; --a: 0.1; }
+.choice[data-active] .spot--white { opacity: 0.35; }
+.choice[data-active="red"] .spot--red, .choice[data-active="blue"] .spot--blue, .choice[data-active="green"] .spot--green { opacity: 1; }
+
+/* Dark glossy floor with a faint horizon line and the spotlight's pool of light */
+.choice__floor {
+  position: absolute; left: 50%; top: calc(100% - var(--floor-off)); width: 300vw; height: 100vh; translate: -50% 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent 30%, rgba(255, 255, 255, 0.22) 50%, transparent 70%) top / 100% 1px no-repeat,
+    radial-gradient(16% 20% at 50% 2%, rgba(255, 255, 255, 0.09), transparent 70%),
+    linear-gradient(to bottom, rgba(16, 16, 22, 0.82), rgba(6, 6, 9, 0.94) 25%, #000 62%);
+}
+.choice__floor::before { /* faint perspective grid */
+  content: ""; position: absolute; left: 30%; right: 30%; top: 0; height: 60%; transform-origin: 50% 0;
+  transform: perspective(500px) rotateX(62deg);
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 64px);
+  -webkit-mask-image: radial-gradient(50% 70% at 50% 0%, #000, transparent 75%);
+  mask-image: radial-gradient(50% 70% at 50% 0%, #000, transparent 75%);
+}
+
+/* ---- Slots: platform, beam, contact shadow, pill, reflection ---- */
+.pill-slot { --rgb: 0, 255, 65; --period: 6s; --phase: 0s; position: relative; width: calc(var(--pw) * 1.12); height: calc(var(--pw) * 1.05); transition: opacity 0.45s ease; }
+.pill-slot[data-mode="red"] { --rgb: 255, 23, 68; --period: 5.3s; --phase: -1.4s; }
+.pill-slot[data-mode="blue"] { --rgb: 41, 121, 255; --period: 6.7s; --phase: -3.9s; }
+.pill-slot[data-mode="green"] { --rgb: 0, 255, 65; --period: 5.9s; --phase: -2.6s; }
+.choice[data-active] .pill-slot:not(.is-active) { opacity: 0.55; }
+
+.pill-slot__platform { position: absolute; left: 50%; top: 80%; width: calc(var(--pw) * 0.95); aspect-ratio: 1; translate: -50% -50%; pointer-events: none; transition: opacity 0.4s ease; }
+.pill-slot__platform::before { content: ""; position: absolute; inset: 14%; border-radius: 50%; transform: rotateX(76deg); background: radial-gradient(closest-side, rgba(var(--rgb), 0.32), transparent); }
+.pill-slot__platform i {
+  position: absolute; inset: 0; border-radius: 50%; opacity: 0.6;
+  border: 1.5px solid transparent; border-top-color: rgba(var(--rgb), 0.6); border-bottom-color: rgba(var(--rgb), 0.3);
+  animation: ring-spin 16s linear infinite;
+}
+.pill-slot__platform i + i { inset: 17%; border: 1px dashed rgba(var(--rgb), 0.5); animation-duration: 11s; animation-direction: reverse; }
+@keyframes ring-spin { from { transform: rotateX(76deg) rotateZ(0deg); } to { transform: rotateX(76deg) rotateZ(360deg); } }
+
+.pill-slot__beam {
+  position: absolute; left: 50%; top: 30%; height: 50%; width: calc(var(--pw) * 0.42); translate: -50% 0; pointer-events: none; opacity: 0.7;
+  background: linear-gradient(to top, rgba(var(--rgb), 0.3), rgba(var(--rgb), 0.05) 75%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 35%, #000 65%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 35%, #000 65%, transparent);
+  transition: opacity 0.4s ease;
+}
+.pill-slot__shadow {
+  position: absolute; left: 50%; top: 80%; width: calc(var(--pw) * 0.82); height: calc(var(--pw) * 0.12); translate: -50% -50%;
+  border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.45) 55%, transparent);
+  animation: shadow-idle var(--period) ease-in-out var(--phase) infinite;
+}
+/* the shadow shrinks and fades (softens) while the pill is at the top of its float */
+@keyframes shadow-idle { 0%, 100% { transform: scale(1); opacity: 0.95; } 25%, 75% { transform: scale(0.86); opacity: 0.72; } 50% { transform: scale(0.7); opacity: 0.45; } }
 
 .pill-btn {
-  --pill-rgb: 0, 255, 65; --pill-hi: #b6ffc8; --pill-base: #00d636; --pill-lo: #00591a;
-  position: relative; display: grid; place-items: center;
-  padding: 10px; margin: 0; border: 0; border-radius: 999px; background: transparent; cursor: pointer;
-  rotate: -28deg;
-  animation: pill-float 5.2s ease-in-out infinite;
-  -webkit-tap-highlight-color: transparent;
+  position: absolute; left: 50%; top: 36%; translate: -50% -50%;
+  display: grid; place-items: center; width: calc(var(--pw) * 1.08); height: calc(var(--pw) * 0.8);
+  margin: 0; padding: 0; border: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s ease;
 }
-.pill-btn:nth-child(2) { animation-delay: -1.7s; }
-.pill-btn:nth-child(3) { animation-delay: -3.4s; }
-.pill-btn[data-mode="red"] { --pill-rgb: 255, 23, 68; --pill-hi: #ff8a9e; --pill-base: #ff1744; --pill-lo: #6e0010; }
-.pill-btn[data-mode="blue"] { --pill-rgb: 41, 121, 255; --pill-hi: #a6dcff; --pill-base: #2979ff; --pill-lo: #0a2a6e; }
-.pill-btn:focus { outline: none; }
-.pill-btn:focus-visible { outline: 2px solid #fff; outline-offset: 6px; box-shadow: 0 0 0 8px rgba(var(--pill-rgb), 0.35); }
+.pill-btn:focus, .pill-btn:focus-visible { outline: none; } /* the targeting brackets are the focus indicator */
+.pill-drop, .pill-float, .pill-scale, .pill-tilt { display: grid; place-items: center; }
+.pill-drop { perspective: 900px; }
+.pill-float { animation: pill-idle var(--period) ease-in-out var(--phase) infinite; transform-style: preserve-3d; }
+.pill-scale { rotate: var(--tilt); perspective: 600px; transition: scale 0.35s cubic-bezier(0.2, 0.8, 0.3, 1.3); }
+.pill-slot.is-active .pill-scale { scale: 1.08; }
+.pill-tilt { position: relative; }
+.pill { display: block; width: var(--pw); height: auto; overflow: visible; filter: drop-shadow(0 12px 14px rgba(0, 0, 0, 0.55)); }
+.pill-glow {
+  position: absolute; inset: -55% -20%; border-radius: 50%; pointer-events: none; opacity: 0.5;
+  background: radial-gradient(closest-side, rgba(var(--rgb), 0.5), rgba(var(--rgb), 0.16) 55%, transparent);
+  transition: opacity 0.35s ease;
+}
+.pill-sheen {
+  position: absolute; inset: 3% 1.5%; border-radius: 999px; pointer-events: none; opacity: 0; mix-blend-mode: screen;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05) 55%, transparent);
+  transition: opacity 0.35s ease;
+}
+.pill-slot.is-active .pill-glow, .pill-slot.is-active .pill-sheen { opacity: 1; }
+.pill__flare { opacity: 0; }
+.pill__core { animation: core-pulse 2.6s ease-in-out infinite; }
+@keyframes core-pulse { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; } }
+@keyframes pill-idle {
+  0%, 100% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg); }
+  25% { transform: translate3d(0, -10px, 0) rotateX(3deg) rotateY(-4deg); }
+  50% { transform: translate3d(0, -18px, 0) rotateX(0deg) rotateY(-1deg); }
+  75% { transform: translate3d(0, -9px, 0) rotateX(-3deg) rotateY(4deg); }
+}
 
-/* Glossy capsule: body gradient + centre seam + specular highlight + rim light */
-.pill {
-  position: relative; display: block; width: clamp(66px, 16vw, 150px); aspect-ratio: 5 / 2; border-radius: 999px;
-  background:
-    linear-gradient(90deg, transparent 49.3%, rgba(0, 0, 0, 0.3) 49.6% 50.4%, transparent 50.7%),
-    radial-gradient(130% 110% at 50% 0%, var(--pill-hi) 0%, var(--pill-base) 46%, var(--pill-lo) 100%);
-  box-shadow:
-    inset 0 -8px 14px rgba(0, 0, 0, 0.45),
-    inset 0 3px 6px rgba(255, 255, 255, 0.35),
-    0 14px 28px rgba(0, 0, 0, 0.6),
-    0 0 26px rgba(var(--pill-rgb), 0.35);
-  transition: box-shadow 0.3s ease, filter 0.3s ease, scale 0.15s ease;
+/* Mirrored reflection on the floor: same float, flipped, faded with a gradient mask */
+.pill-slot__refl {
+  position: absolute; left: 50%; top: 124%; translate: -50% -50%; scale: 1 -1; opacity: 0.32; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.5) 45%, transparent 85%);
+  mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.5) 45%, transparent 85%);
+  transition: opacity 0.4s ease;
 }
-.pill::before {
-  content: ""; position: absolute; left: 11%; right: 32%; top: 12%; height: 28%; border-radius: 999px;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
-}
-.pill::after {
-  content: ""; position: absolute; left: 18%; right: 14%; bottom: 9%; height: 14%; border-radius: 999px;
-  background: linear-gradient(to top, rgba(255, 255, 255, 0.22), transparent);
-}
-.pill-btn:hover .pill, .pill-btn:focus-visible .pill {
-  filter: brightness(1.12) saturate(1.1);
-  box-shadow:
-    inset 0 -8px 14px rgba(0, 0, 0, 0.4),
-    inset 0 3px 6px rgba(255, 255, 255, 0.4),
-    0 14px 28px rgba(0, 0, 0, 0.6),
-    0 0 42px rgba(var(--pill-rgb), 0.8),
-    0 0 100px rgba(var(--pill-rgb), 0.35);
-}
-.pill-btn:active .pill { scale: 0.9; }
-.pill-btn.is-chosen .pill { animation: pill-press 0.55s ease-out forwards; }
-.choice.is-picked .pill-btn:not(.is-chosen) { opacity: 0; transition: opacity 0.3s; }
+.pill-slot__refl .pill { filter: none; }
 
-.choice__flash {
-  position: fixed; inset: 0; pointer-events: none; opacity: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(var(--flash-rgb, 0, 255, 65), 0.7), rgba(var(--flash-rgb, 0, 255, 65), 0.18) 45%, transparent 78%);
+/* ---- Targeting brackets (focus + hover indicator, positioned by JS) ---- */
+.choice__brackets i { position: absolute; left: 0; top: 0; width: 20px; height: 20px; opacity: 0; transition: opacity 0.2s ease; }
+/* the corner shape pulses on a pseudo-element, so the pulse never scales the JS-set position */
+.choice__brackets i::before {
+  content: ""; position: absolute; inset: 0;
+  border: 2px solid #fff; filter: drop-shadow(0 0 6px rgba(var(--b-rgb, 255, 255, 255), 0.95));
+  animation: bracket-pulse 1.4s ease-in-out infinite;
 }
-.choice.is-picked .choice__flash { animation: choice-flash 0.9s ease-out forwards; }
+.choice__brackets i:nth-child(1)::before { border-right: 0; border-bottom: 0; }
+.choice__brackets i:nth-child(2)::before { border-left: 0; border-bottom: 0; }
+.choice__brackets i:nth-child(3)::before { border-right: 0; border-top: 0; }
+.choice__brackets i:nth-child(4)::before { border-left: 0; border-top: 0; }
+.choice[data-active]:not(.is-entering):not(.is-picking) .choice__brackets i { opacity: 1; }
+@keyframes bracket-pulse { 0%, 100% { scale: 1; } 50% { scale: 1.2; } }
 
-@keyframes pill-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -14px; } }
-@keyframes pill-press { 0% { scale: 1; } 30% { scale: 0.84; } 100% { scale: 1.3; filter: brightness(1.6); } }
+/* ---- Entrance (~1.5s): darkness, spotlight flickers on, pills drop in with a bounce, rings expand ---- */
+.choice.is-entering .choice__dark { animation: fade-out 0.55s ease-out 0.3s both; }
+.choice.is-entering .choice__spot { animation: spot-flicker 0.6s steps(1) 0.15s both; }
+.choice.is-entering .pill-drop { animation: pill-drop 0.72s cubic-bezier(0.3, 0.75, 0.35, 1) both; animation-delay: calc(0.5s + var(--i) * 0.15s); }
+.choice.is-entering .pill-slot__platform { animation: ring-in 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.25) both; animation-delay: calc(0.95s + var(--i) * 0.15s); }
+.choice.is-entering .pill-slot__beam { animation: fade-in 0.5s ease both; animation-delay: calc(1s + var(--i) * 0.15s); }
+@keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes spot-flicker { 0% { opacity: 0; } 18% { opacity: 0.75; } 28% { opacity: 0.1; } 42% { opacity: 0.95; } 52% { opacity: 0.35; } 66%, 100% { opacity: 1; } }
+@keyframes pill-drop {
+  0% { transform: translateY(-115vh); }
+  62% { transform: translateY(16px); }
+  80% { transform: translateY(-7px); }
+  92% { transform: translateY(3px); }
+  100% { transform: none; }
+}
+@keyframes ring-in { from { transform: scale(0.15); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ---- Choosing (~1.6s): centre + grow, others fall, crack at the seam, powder, shockwave, glitch ---- */
+.choice.is-picking .pill-slot__platform, .choice.is-picking .pill-slot__beam,
+.choice.is-picking .pill-slot__shadow, .choice.is-picking .pill-slot__refl { opacity: 0; }
+.pill-slot.is-chosen { z-index: 2; }
+.pill-slot.is-chosen .pill-btn { transform: var(--to); }
+.pill-slot.is-chosen .pill-float { animation-play-state: paused; }
+.pill-slot.is-dropped .pill-btn {
+  transform: translateY(75vh) rotate(var(--fall, 30deg)); opacity: 0;
+  transition: transform 0.75s cubic-bezier(0.55, 0, 0.85, 0.35), opacity 0.6s ease 0.1s;
+}
+.pill__half { transform-box: view-box; transform-origin: 120px 97px; transition: transform 0.5s cubic-bezier(0.15, 0.75, 0.25, 1); }
+.choice.is-cracked .is-chosen .pill__half--l { transform: translate(-30px, 2px) rotate(-30deg); }
+.choice.is-cracked .is-chosen .pill__half--r { transform: translate(30px, 2px) rotate(30deg); }
+.choice.is-cracked .is-chosen .pill__flare { animation: flare 0.5s ease-out both; }
+.choice.is-cracked .is-chosen .pill-tilt { opacity: 0; transition: opacity 0.35s ease 0.3s; }
+@keyframes flare { 25% { opacity: 1; } 100% { opacity: 0; } }
+
+.choice__shock {
+  position: absolute; left: var(--sx, 50%); top: var(--sy, 50%); width: 200px; height: 200px; margin: -100px 0 0 -100px;
+  border-radius: 50%; opacity: 0; pointer-events: none;
+  border: 2px solid rgba(var(--flash-rgb, 255, 255, 255), 0.9);
+  box-shadow: 0 0 34px rgba(var(--flash-rgb, 255, 255, 255), 0.65), inset 0 0 24px rgba(var(--flash-rgb, 255, 255, 255), 0.45);
+}
+.choice.is-cracked .choice__shock { animation: shockwave 0.85s cubic-bezier(0.1, 0.65, 0.3, 1) both; }
+@keyframes shockwave { from { transform: scale(0.05); opacity: 1; } to { transform: scale(var(--shock-scale, 16)); opacity: 0; } }
+
+.choice__flash { opacity: 0; background: radial-gradient(circle at 50% 50%, rgba(var(--flash-rgb, 0, 255, 65), 0.7), rgba(var(--flash-rgb, 0, 255, 65), 0.18) 45%, transparent 78%); }
+.choice.is-cracked .choice__flash { animation: choice-flash 0.9s ease-out both; }
 @keyframes choice-flash { 0% { opacity: 0; } 22% { opacity: 1; } 100% { opacity: 0; } }
+
+/* chromatic-aberration glitch: red and cyan scan slices jitter sideways for a split second */
+.choice__glitch {
+  opacity: 0; mix-blend-mode: screen;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 6px, rgba(255, 0, 60, 0.38) 6px 9px, transparent 9px 23px),
+    repeating-linear-gradient(to bottom, transparent 0 13px, rgba(0, 225, 255, 0.32) 13px 15px, transparent 15px 31px);
+}
+.choice.is-cracked .choice__glitch { animation: ca-glitch 0.34s steps(4) both; }
+@keyframes ca-glitch { 0% { opacity: 1; transform: translateX(-14px); } 25% { transform: translateX(11px); } 50% { opacity: 0.8; transform: translateX(-6px); } 75% { transform: translateX(4px); } 100% { opacity: 0; transform: none; } }
+
+/* ---- Phones: pills stacked vertically, big tap targets, no reflections ---- */
+@media (max-width: 599.98px) {
+  .choice { --pw: min(58vw, 230px, calc((100svh - 64px) / 2.25)); --tilt: -12deg; }
+  .choice__scene { --floor-off: calc(var(--pw) * 0.16); translate: 0 2vh; }
+  .choice__pills { flex-direction: column; align-items: center; gap: 4px; }
+  .pill-slot { width: calc(var(--pw) * 1.12); height: calc(var(--pw) * 0.72); }
+  .pill-btn { top: 40%; height: calc(var(--pw) * 0.62); }
+  .pill-slot__platform { top: 86%; width: calc(var(--pw) * 0.8); }
+  .pill-slot__shadow { top: 86%; }
+  .pill-slot__beam { top: 36%; height: 50%; }
+  .pill-slot__refl { display: none; }
+}
 
 /* ---------- 4. Nav ---------- */
 .nav {
@@ -1303,8 +1460,11 @@ html.dreaming .crt__flash {
   .glitch::before, .glitch::after { display: none; }
   .crt__flicker, .crt__roll, .crt__flash, .breach { display: none !important; }
   .card, .backdrop::after, .ecg-trace, .geo__kid, .bars i { animation: none !important; }
-  .pill-btn, .pill-btn.is-chosen .pill { animation: none !important; }
-  .choice__flash { display: none !important; }
+  /* pill screen: static lighting, no floating, rings, flicker or bursts; choosing is a plain fade */
+  .choice .pill-drop, .choice .pill-float, .pill-slot__shadow, .pill-slot__platform i, .pill__core,
+  .choice__spot, .choice__dark, .choice__brackets i::before { animation: none !important; }
+  .choice__shock, .choice__glitch, .choice__flash { display: none !important; }
+  .choice.is-leaving { transition: opacity 0.4s ease, visibility 0s linear 0.4s !important; }
   .cursor, .screen__start, .boot__line.is-active .boot__text::after { animation: none !important; }
   .sonar__sweep { animation: none !important; transform: rotate(62deg); }
   .blip { animation: none !important; opacity: 0.85; }
@@ -1340,14 +1500,44 @@ html.dreaming .crt__flash {
 </div>
 
 <!-- ======================= PILL CHOICE (no visible text by design) ======================= -->
-<div id="choice" class="choice" role="dialog" aria-modal="true" aria-label="Choose your pill" aria-describedby="choice-desc" inert>
-  <p id="choice-desc" class="sr-only">Choose a version of this site. Red pill: DEVARUN, the digital products agency, and its game studio Megalodon Studios. Blue pill: a simple student portfolio. Green pill: freelance services. Use the arrow keys to move between pills and Enter or Space to choose.</p>
-  <div class="choice__pills">
-    <button type="button" class="pill-btn" data-mode="red" aria-label="Red pill"><span class="pill" aria-hidden="true"></span></button>
-    <button type="button" class="pill-btn" data-mode="blue" aria-label="Blue pill"><span class="pill" aria-hidden="true"></span></button>
-    <button type="button" class="pill-btn" data-mode="green" aria-label="Green pill"><span class="pill" aria-hidden="true"></span></button>
+<!-- Decorative layers are aria-hidden; the pill buttons (with their aria-labels) are the only interactive parts.
+     Pill artwork, reflections and effects are generated by the Choice module in the script. -->
+<div id="choice" class="choice" role="dialog" aria-modal="true" aria-label="Choose your pill" aria-describedby="choice-desc" tabindex="-1" inert>
+  <p id="choice-desc" class="sr-only">Choose a version of this site. Red pill: DEVARUN, the digital products agency, and its game studio Megalodon Studios. Blue pill: a simple student portfolio. Green pill: freelance services. Use Tab or the arrow keys to move between pills and Enter or Space to choose.</p>
+  <div class="choice__dark" aria-hidden="true"></div>
+  <div class="choice__tint" aria-hidden="true"><i class="tint--red"></i><i class="tint--blue"></i><i class="tint--green"></i></div>
+  <div class="choice__vignette" aria-hidden="true"></div>
+  <div class="choice__spot" aria-hidden="true"><i class="spot--white"></i><i class="spot--red"></i><i class="spot--blue"></i><i class="spot--green"></i></div>
+  <div class="choice__scene">
+    <div class="choice__floor" aria-hidden="true"></div>
+    <div class="choice__pills">
+      <div class="pill-slot" data-mode="red" style="--i: 0">
+        <span class="pill-slot__beam" aria-hidden="true"></span>
+        <span class="pill-slot__platform" aria-hidden="true"><i></i><i></i></span>
+        <span class="pill-slot__shadow" aria-hidden="true"></span>
+        <span class="pill-slot__refl" aria-hidden="true"></span>
+        <button type="button" class="pill-btn" data-mode="red" aria-label="Red pill"></button>
+      </div>
+      <div class="pill-slot" data-mode="blue" style="--i: 1">
+        <span class="pill-slot__beam" aria-hidden="true"></span>
+        <span class="pill-slot__platform" aria-hidden="true"><i></i><i></i></span>
+        <span class="pill-slot__shadow" aria-hidden="true"></span>
+        <span class="pill-slot__refl" aria-hidden="true"></span>
+        <button type="button" class="pill-btn" data-mode="blue" aria-label="Blue pill"></button>
+      </div>
+      <div class="pill-slot" data-mode="green" style="--i: 2">
+        <span class="pill-slot__beam" aria-hidden="true"></span>
+        <span class="pill-slot__platform" aria-hidden="true"><i></i><i></i></span>
+        <span class="pill-slot__shadow" aria-hidden="true"></span>
+        <span class="pill-slot__refl" aria-hidden="true"></span>
+        <button type="button" class="pill-btn" data-mode="green" aria-label="Green pill"></button>
+      </div>
+    </div>
   </div>
+  <div class="choice__brackets" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <div class="choice__shock" aria-hidden="true"></div>
   <div class="choice__flash" aria-hidden="true"></div>
+  <div class="choice__glitch" aria-hidden="true"></div>
 </div>
 
 <!-- ======================= NAV ======================= -->
@@ -2173,11 +2363,12 @@ html.dreaming .crt__flash {
     fxTimer = setTimeout(() => root.classList.remove(cls), ms);
   }
 
-  /* ---------- 1. Matrix rain (one engine, three modes) ---------- */
+  /* ---------- 1. Matrix rain (one engine, three modes, optional depth layers) ---------- */
+  // One requestAnimationFrame loop drives every rain layer plus any per-frame hooks (the pill screen's effects).
   const Rain = (() => {
     const canvas = $('#rain');
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return { setMode() {}, burst() { return false; } };
+    const noop = { setMode() {}, burst() { return false; }, onFrame() { return () => {}; }, addLayer() { return null; }, removeLayer() {}, setTint() {} };
+    if (!canvas.getContext('2d')) return noop;
 
     const KATAKANA = [];
     for (let c = 0xff66; c <= 0xff9d; c++) KATAKANA.push(String.fromCharCode(c));
@@ -2206,15 +2397,27 @@ html.dreaming .crt__flash {
       }
     };
 
-    const FRAME_MS = 1000 / 30;   // capped at 30fps — plenty for rain, kind to batteries
+    const FRAME_MS = 1000 / 30;   // rain capped at 30fps — plenty for rain, kind to batteries
     const MAX_DPR = 2;
 
     let mode = MODES[root.dataset.theme] || MODES.green;
     let colors = readColors();
-    let w = 0, h = 0, dpr = 1, size = 16, cols = 0, rows = 0;
-    let drops = [];
+    let dpr = 1;
     let raf = 0, last = 0, running = false;
     let speedMult = 1, bursting = false, burstTimer = 0, resizeTimer = 0;
+    let tint = null;            // { x0, x1, trail, head }: recolour the columns near the active pill
+    const hooks = new Set();    // per-frame callbacks sharing this loop
+
+    // A layer is one canvas of rain; sizeK / speedK / densityK scale the active mode for depth layers
+    function makeLayer(cv, opts = {}) {
+      return {
+        canvas: cv, ctx: cv.getContext('2d'), main: !!opts.main,
+        sizeK: opts.sizeK || 1, speedK: opts.speedK || 1, densityK: opts.densityK || 1, res: opts.res || 1,
+        w: 0, h: 0, dpr: 0, size: 16, cols: 0, rows: 0, drops: []
+      };
+    }
+    const main = makeLayer(canvas, { main: true });
+    const layers = [main];
 
     function readColors() {
       const cs = getComputedStyle(root);
@@ -2225,121 +2428,134 @@ html.dreaming .crt__flash {
     const trailColor = () => (mode.alt && Math.random() < mode.alt ? colors.alt : colors.trail);
     // Upward columns are an animation flourish only: never with reduced motion
     const pickDir = () => (mode.upward && !reduced() && Math.random() < mode.upward ? -1 : 1);
+    const dropSpeed = (L) => rand(mode.speed[0], mode.speed[1]) * L.speedK;
 
-    function makeDrop(col, scatter, extra = false) {
+    function makeDrop(L, col, scatter, extra = false) {
       const dir = pickDir();
       let y;
-      if (dir === 1) y = scatter ? rand(-rows, rows) : rand(-rows * 0.8, 0);
-      else y = scatter ? rand(0, rows * 2) : rows + rand(0, rows * 0.8);
-      return { col, y, row: Math.floor(y), dir, speed: rand(mode.speed[0], mode.speed[1]), ch: glyph(), extra };
+      if (dir === 1) y = scatter ? rand(-L.rows, L.rows) : rand(-L.rows * 0.8, 0);
+      else y = scatter ? rand(0, L.rows * 2) : L.rows + rand(0, L.rows * 0.8);
+      return { col, y, row: Math.floor(y), dir, speed: dropSpeed(L), ch: glyph(), extra };
     }
 
-    function respawn(d) {
-      if (mode.roam) d.col = (Math.random() * cols) | 0;
+    function respawn(L, d) {
+      if (mode.roam || !L.main) d.col = (Math.random() * L.cols) | 0;
       d.dir = pickDir();
-      d.y = d.dir === 1 ? rand(-24, 0) : rows + rand(0, 24);
+      d.y = d.dir === 1 ? rand(-24, 0) : L.rows + rand(0, 24);
       d.row = Math.floor(d.y);
-      d.speed = rand(mode.speed[0], mode.speed[1]);
+      d.speed = dropSpeed(L);
     }
 
     // Font, grid and a fresh set of drops for the current mode and size
-    function layout() {
-      size = w < 600 ? mode.sizeSmall : mode.size;
-      cols = Math.ceil(w / size);
-      rows = Math.ceil(h / size);
-      ctx.font = `${size}px ${mode.font}`;
-      ctx.textBaseline = 'top';
-      const count = Math.max(1, Math.round(cols * mode.density));
-      drops = [];
+    function layout(L) {
+      L.size = Math.round((L.w < 600 ? mode.sizeSmall : mode.size) * L.sizeK);
+      L.cols = Math.ceil(L.w / L.size);
+      L.rows = Math.ceil(L.h / L.size);
+      L.ctx.font = `${L.size}px ${mode.font}`;
+      L.ctx.textBaseline = 'top';
+      const density = mode.density * L.densityK;
+      const count = Math.max(1, Math.round(L.cols * density));
+      L.drops = [];
       for (let i = 0; i < count; i++) {
-        const col = mode.density >= 1 && i < cols ? i : (Math.random() * cols) | 0;
-        drops.push(makeDrop(col, true));
+        const col = density >= 1 && i < L.cols ? i : (Math.random() * L.cols) | 0;
+        L.drops.push(makeDrop(L, col, true));
       }
     }
 
-    function resize() {
-      const cw = canvas.clientWidth, ch = canvas.clientHeight;
-      const nd = Math.min(window.devicePixelRatio || 1, MAX_DPR);
-      if (cw === w && ch === h && nd === dpr) return;
-      w = cw; h = ch; dpr = nd;
-      canvas.width = Math.round(w * dpr); // resizing clears the canvas and resets context state
-      canvas.height = Math.round(h * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      layout();
-      if (reduced()) drawStatic();
+    // Match a layer's backing store to its CSS size × devicePixelRatio; returns true if it changed
+    function fit(L) {
+      const cw = L.canvas.clientWidth, ch = L.canvas.clientHeight;
+      if (cw === L.w && ch === L.h && L.dpr === dpr) return false;
+      L.w = cw; L.h = ch; L.dpr = dpr;
+      const k = L.main ? dpr : Math.min(dpr, 1.5) * L.res; // extra layers: capped resolution
+      L.canvas.width = Math.round(cw * k); // resizing clears the canvas and resets context state
+      L.canvas.height = Math.round(ch * k);
+      L.ctx.setTransform(k, 0, 0, k, 0, 0);
+      layout(L);
+      return true;
     }
 
-    function tick() {
-      // Fade everything toward transparent to leave trails
-      ctx.shadowBlur = 0;
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.fillStyle = `rgba(0,0,0,${mode.fade})`;
-      ctx.fillRect(0, 0, w, h);
-      ctx.globalCompositeOperation = 'source-over';
-      if (mode.glow) { ctx.shadowBlur = mode.glow; ctx.shadowColor = colors.head; }
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+      const changed = layers.map(fit)[0];
+      if (changed && reduced()) drawStatic();
+    }
 
-      for (let i = drops.length - 1; i >= 0; i--) {
-        const d = drops[i];
+    function tick(L) {
+      const c = L.ctx, size = L.size, rows = L.rows;
+      // Fade everything toward transparent to leave trails
+      c.shadowBlur = 0;
+      c.globalCompositeOperation = 'destination-out';
+      c.fillStyle = `rgba(0,0,0,${mode.fade})`;
+      c.fillRect(0, 0, L.w, L.h);
+      c.globalCompositeOperation = 'source-over';
+      if (mode.glow) { c.shadowBlur = mode.glow; c.shadowColor = colors.head; }
+
+      for (let i = L.drops.length - 1; i >= 0; i--) {
+        const d = L.drops[i];
         d.y += d.speed * speedMult * d.dir;
         const row = Math.floor(d.y);
 
         if (row !== d.row) {
           const x = d.col * size;
+          const t = tint && x + size >= tint.x0 && x <= tint.x1 ? tint : null;
           // Old head becomes a normal trail glyph
           if (d.row >= 0 && d.row < rows) {
-            ctx.clearRect(x, d.row * size, size, size);
-            ctx.fillStyle = trailColor();
-            ctx.fillText(d.ch, x, d.row * size);
+            c.clearRect(x, d.row * size, size, size);
+            c.fillStyle = t ? t.trail : trailColor();
+            c.fillText(d.ch, x, d.row * size);
           }
           // Fill rows skipped by fast drops so trails stay continuous
           if (Math.abs(row - d.row) < 12) {
-            ctx.fillStyle = colors.trail;
-            for (let r = d.row + d.dir; r !== row; r += d.dir) if (r >= 0 && r < rows) ctx.fillText(glyph(), x, r * size);
+            c.fillStyle = t ? t.trail : colors.trail;
+            for (let r = d.row + d.dir; r !== row; r += d.dir) if (r >= 0 && r < rows) c.fillText(glyph(), x, r * size);
           }
           // New, brighter head
           d.ch = glyph();
           d.row = row;
           if (row >= 0 && row < rows) {
-            ctx.fillStyle = colors.head;
-            ctx.fillText(d.ch, x, row * size);
+            c.fillStyle = t ? t.head : colors.head;
+            c.fillText(d.ch, x, row * size);
           }
         }
 
         const gone = d.dir === 1 ? d.row >= rows : d.row < 0;
         if (gone) {
-          if (d.extra && !bursting) { drops.splice(i, 1); continue; }
-          if (Math.random() < mode.respawn) respawn(d);
+          if (d.extra && !bursting) { L.drops.splice(i, 1); continue; }
+          if (Math.random() < mode.respawn) respawn(L, d);
         }
       }
-      ctx.shadowBlur = 0;
+      c.shadowBlur = 0;
     }
 
     // Reduced-motion fallback: a static, faint grid with scattered glyphs from the current mode
     function drawStatic() {
-      ctx.shadowBlur = 0;
-      ctx.clearRect(0, 0, w, h);
+      const c = main.ctx, w = main.w, h = main.h, size = main.size;
+      c.shadowBlur = 0;
+      c.clearRect(0, 0, w, h);
       const step = size * 2;
-      ctx.strokeStyle = colors.trail;
-      ctx.lineWidth = 1;
-      ctx.globalAlpha = 0.14;
-      ctx.beginPath();
-      for (let x = 0.5; x < w; x += step) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
-      for (let y = 0.5; y < h; y += step) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
-      ctx.stroke();
-      ctx.fillStyle = colors.trail;
-      ctx.globalAlpha = 0.4;
+      c.strokeStyle = colors.trail;
+      c.lineWidth = 1;
+      c.globalAlpha = 0.14;
+      c.beginPath();
+      for (let x = 0.5; x < w; x += step) { c.moveTo(x, 0); c.lineTo(x, h); }
+      for (let y = 0.5; y < h; y += step) { c.moveTo(0, y); c.lineTo(w, y); }
+      c.stroke();
+      c.fillStyle = colors.trail;
+      c.globalAlpha = 0.4;
       for (let x = 0; x < w; x += step) {
-        for (let y = 0; y < h; y += step) if (Math.random() < 0.1) ctx.fillText(glyph(), x + size / 2, y + size / 2);
+        for (let y = 0; y < h; y += step) if (Math.random() < 0.1) c.fillText(glyph(), x + size / 2, y + size / 2);
       }
-      ctx.globalAlpha = 1;
+      c.globalAlpha = 1;
     }
 
     function frame(t) {
       raf = requestAnimationFrame(frame);
+      hooks.forEach((fn) => fn(t)); // every frame (smooth effects)
       const elapsed = t - last;
       if (elapsed < FRAME_MS) return;
       last = t - (elapsed % FRAME_MS);
-      tick();
+      layers.forEach(tick);
     }
     function start() {
       if (running || reduced() || doc.hidden) return;
@@ -2357,21 +2573,23 @@ html.dreaming .crt__flash {
     function setMode(name) {
       mode = MODES[name] || MODES.green;
       colors = readColors();
-      if (!w) return;
-      ctx.clearRect(0, 0, w, h);
-      layout();
+      layers.forEach((L) => {
+        if (!L.w) return;
+        L.ctx.clearRect(0, 0, L.w, L.h);
+        layout(L);
+      });
       if (reduced()) drawStatic();
     }
 
-    // Konami: faster, denser rain for a few seconds
+    // Konami / pill choice: faster, denser rain for a few seconds
     function burst(ms = 6500) {
       if (reduced()) return false;
       bursting = true;
       speedMult = 2.3;
-      if (drops.length < cols * 5) {
-        for (let c = 0; c < cols; c++) {
-          drops.push(makeDrop(c, false, true));
-          if (Math.random() < 0.6) drops.push(makeDrop(c, false, true));
+      if (main.drops.length < main.cols * 5) {
+        for (let c = 0; c < main.cols; c++) {
+          main.drops.push(makeDrop(main, c, false, true));
+          if (Math.random() < 0.6) main.drops.push(makeDrop(main, c, false, true));
         }
       }
       root.classList.add('overload');
@@ -2385,6 +2603,21 @@ html.dreaming .crt__flash {
       return true;
     }
 
+    // Extra depth layers (the pill screen's parallax). The canvas must already be in the DOM.
+    function addLayer(cv, opts) {
+      const L = makeLayer(cv, opts);
+      if (!L.ctx) return null;
+      layers.push(L);
+      fit(L);
+      return L;
+    }
+    function removeLayer(L) {
+      const i = layers.indexOf(L);
+      if (i > 0) layers.splice(i, 1);
+    }
+    function setTint(t) { tint = t || null; }
+    function onFrame(fn) { hooks.add(fn); return () => hooks.delete(fn); }
+
     resize();
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimer);
@@ -2393,11 +2626,11 @@ html.dreaming .crt__flash {
     doc.addEventListener('visibilitychange', () => (doc.hidden ? stop() : start()));
     onMQChange(motionMQ, () => {
       if (reduced()) { stop(); drawStatic(); }
-      else { ctx.clearRect(0, 0, w, h); layout(); start(); }
+      else { layers.forEach((L) => { L.ctx.clearRect(0, 0, L.w, L.h); layout(L); }); start(); }
     });
     if (reduced()) drawStatic(); else start();
 
-    return { setMode, burst };
+    return { setMode, burst, onFrame, addLayer, removeLayer, setTint };
   })();
 
   /* ---------- 2. Theme: matrix (green) / red pill / blue pill ---------- */
@@ -2591,49 +2824,366 @@ html.dreaming .crt__flash {
   })();
 
   /* ---------- 3b. Pill choice screen ---------- */
+  // A dark stage with three floating SVG capsules. Every per-frame effect (tilt, parallax, brackets, particles)
+  // runs inside the rain's requestAnimationFrame loop, and everything created on open is torn down on close.
   const Choice = (() => {
     const el = $('#choice');
-    const pills = $$('.pill-btn', el);
     const site = $$('.nav, main, .footer');
+    const rainCanvas = $('#rain');
+    const vignette = $('.choice__vignette', el);
+    const brackets = $$('.choice__brackets i', el);
+    const finePointer = matchMedia('(hover: hover) and (pointer: fine)');
+    const MAX_PARTICLES = 260;
+
+    // Materials: red = glossy opaque, blue = glossy and deeper, green = translucent with a glowing core
+    const PILLS = {
+      red: { rgb: '255, 23, 68', hi: '#ff9aab', base: '#ff1744', mid: 0.46, lo: '#b0002a', deep: '#4a000e', rim: '#ffb3c1', head: '#ffe1e7', spec: 0.95, glass: false },
+      blue: { rgb: '41, 121, 255', hi: '#8cbcff', base: '#2979ff', mid: 0.34, lo: '#0a35a0', deep: '#020d33', rim: '#a3d6ff', head: '#dcecff', spec: 0.78, glass: false },
+      green: { rgb: '0, 255, 65', hi: '#c8ffd5', base: '#00ff41', mid: 0.46, lo: '#00a62b', deep: '#003a0f', rim: '#c8ffd5', head: '#eafff0', spec: 0.85, glass: true }
+    };
+
+    // Capsule art lives in <defs>; both halves <use> it through a clip so the pill can crack open at the seam
+    function pillSVG(mode) {
+      const p = PILLS[mode], id = `pill-${mode}`;
+      return `<svg class="pill" viewBox="0 0 240 100" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="${id}-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${p.hi}"/><stop offset="${p.mid}" stop-color="${p.base}"/><stop offset=".8" stop-color="${p.lo}"/><stop offset="1" stop-color="${p.deep}"/>
+    </linearGradient>
+    <linearGradient id="${id}-edge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset=".5" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="${p.glass ? 0.35 : 0.55}"/>
+    </linearGradient>
+    <linearGradient id="${id}-spec" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="${p.spec}"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="${id}-rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".45" stop-color="${p.rim}" stop-opacity="0"/><stop offset="1" stop-color="${p.rim}" stop-opacity=".95"/>
+    </linearGradient>
+    <radialGradient id="${id}-core" cx=".5" cy=".55" r=".5">
+      <stop offset="0" stop-color="#f4fff7"/><stop offset=".32" stop-color="${p.base}" stop-opacity=".95"/><stop offset="1" stop-color="${p.base}" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="${id}-shape"><rect x="2" y="2" width="236" height="96" rx="48"/></clipPath>
+    <clipPath id="${id}-l"><rect x="0" y="0" width="120" height="100"/></clipPath>
+    <clipPath id="${id}-r"><rect x="120" y="0" width="120" height="100"/></clipPath>
+    <g id="${id}-art">
+      <g clip-path="url(#${id}-shape)">
+        <rect x="2" y="2" width="236" height="96" fill="url(#${id}-body)"${p.glass ? ' fill-opacity=".5"' : ''}/>
+        ${p.glass ? `<ellipse class="pill__core" cx="120" cy="56" rx="88" ry="27" fill="url(#${id}-core)"/><rect x="40" y="50" width="160" height="5" rx="2.5" fill="#f4fff7" opacity=".55"/>` : ''}
+        <rect x="2" y="2" width="236" height="96" fill="url(#${id}-edge)"/>
+        <path d="M24 86 Q120 106 216 86" fill="none" stroke="${p.rim}" stroke-opacity=".6" stroke-width="3"/>
+        <g class="pill__spec">
+          <rect x="30" y="11" width="156" height="18" rx="9" fill="url(#${id}-spec)"/>
+          <rect x="196" y="17" width="14" height="7" rx="3.5" fill="#fff" fill-opacity=".75"/>
+        </g>
+      </g>
+      <rect x="2.5" y="2.5" width="235" height="95" rx="47.5" fill="none" stroke="url(#${id}-rim)" stroke-width="2.5"/>
+    </g>
+  </defs>
+  <g class="pill__half pill__half--l">
+    <use href="#${id}-art" clip-path="url(#${id}-l)"/>
+    <line x1="119" y1="4" x2="119" y2="96" stroke="#000" stroke-opacity=".38" stroke-width="2"/>
+  </g>
+  <g class="pill__half pill__half--r">
+    <use href="#${id}-art" clip-path="url(#${id}-r)"/>
+    <line x1="121.2" y1="5" x2="121.2" y2="95" stroke="#fff" stroke-opacity=".28" stroke-width="1.2"/>
+  </g>
+  <rect class="pill__flare" x="113" y="6" width="14" height="88" rx="7" fill="#fff"/>
+</svg>`;
+    }
+
+    // Build every slot once; per-open state lives on these records
+    const S = $$('.pill-slot', el).map((slot) => {
+      const mode = slot.dataset.mode;
+      const btn = $('.pill-btn', slot);
+      btn.innerHTML = `<span class="pill-drop"><span class="pill-float"><span class="pill-scale"><span class="pill-tilt"><span class="pill-glow"></span>${pillSVG(mode)}<span class="pill-sheen"></span></span></span></span></span>`;
+      $('.pill-slot__refl', slot).innerHTML = `<span class="pill-drop"><span class="pill-float"><span class="pill-scale"><svg class="pill" viewBox="0 0 240 100" focusable="false"><use href="#pill-${mode}-art"/></svg></span></span></span>`;
+      return { mode, slot, btn, svg: $('svg.pill', btn), tilt: $('.pill-tilt', btn), spec: $(`#pill-${mode}-art .pill__spec`), tx: 0, ty: 0, cx: 0, cy: 0 };
+    });
+    const pills = S.map((r) => r.btn);
+
     const timers = [];
-    const later = (fn, ms) => timers.push(setTimeout(fn, reduced() ? 0 : ms));
-    let isOpen = false, first = false, busy = false, onDone = null, returnTo = null;
+    const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+    let isOpen = false, first = false, busy = false, picking = false, onDone = null, returnTo = null, pending = null;
+    let ac = null, unhook = null, active = null, hovered = null;
+    let fx = null, fxCtx = null, far = null, near = null, parts = [], sparkleAcc = 0, lastT = 0;
+    const par = { x: 0, y: 0, tx: 0, ty: 0 };
+    const bk = brackets.map(() => ({ x: 0, y: 0, tx: 0, ty: 0, set: false }));
     const leaving = () => el.classList.contains('is-leaving');
+    const motion = () => !reduced();
+    const focusedRec = () => S.find((r) => r.btn === doc.activeElement) || null;
+
+    /* -- Active pill: hover or focus. Tints the room, the spotlight and nearby rain; dims the others. -- */
+    function setActive(rec) {
+      if (rec === active) return;
+      if (active) { active.slot.classList.remove('is-active'); active.tx = active.ty = 0; }
+      active = rec;
+      if (!rec) { delete el.dataset.active; Rain.setTint(null); return; }
+      const p = PILLS[rec.mode];
+      rec.slot.classList.add('is-active');
+      el.dataset.active = rec.mode;
+      el.style.setProperty('--b-rgb', p.rgb);
+      const r = rec.svg.getBoundingClientRect();
+      Rain.setTint({ x0: r.left - r.width * 0.45, x1: r.right + r.width * 0.45, trail: p.base, head: p.head });
+      aimBrackets(r, !motion());
+    }
+
+    // Four corner brackets around the active pill; they ease toward their targets in the frame loop
+    function aimBrackets(r, snap) {
+      const pad = 12, s = 20;
+      const pts = [[r.left - pad, r.top - pad], [r.right + pad - s, r.top - pad], [r.left - pad, r.bottom + pad - s], [r.right + pad - s, r.bottom + pad - s]];
+      pts.forEach(([x, y], i) => {
+        const b = bk[i];
+        b.tx = x; b.ty = y;
+        if (snap || !b.set) { b.x = x; b.y = y; b.set = true; brackets[i].style.transform = `translate3d(${x}px, ${y}px, 0)`; }
+      });
+    }
+
+    /* -- Particles: sparkles rising from the active pill and the powder burst when a pill cracks -- */
+    function sizeFx() {
+      if (!fx) return;
+      const d = Math.min(window.devicePixelRatio || 1, 2);
+      fx.width = Math.round(innerWidth * d);
+      fx.height = Math.round(innerHeight * d);
+      fxCtx.setTransform(d, 0, 0, d, 0, 0);
+    }
+    function sparkle(rec, r) {
+      if (parts.length >= MAX_PARTICLES) return;
+      parts.push({
+        x: r.left + r.width * (0.15 + Math.random() * 0.7), y: r.top + r.height * (0.25 + Math.random() * 0.5),
+        vx: rand(-14, 14), vy: rand(-95, -40), g: 0, drag: 0.995, life: 0, max: rand(1, 1.9), size: rand(1, 2.4),
+        color: Math.random() < 0.35 ? '#ffffff' : PILLS[rec.mode].base, star: true
+      });
+    }
+    function powder(x, y, mode) {
+      const p = PILLS[mode];
+      parts = parts.filter((q) => !q.star);
+      const n = Math.min(150, MAX_PARTICLES - parts.length);
+      for (let i = 0; i < n; i++) {
+        const a = Math.random() * Math.PI * 2, v = rand(140, 860);
+        parts.push({
+          x: x + rand(-10, 10), y: y + rand(-10, 10), vx: Math.cos(a) * v, vy: Math.sin(a) * v - 140,
+          g: 620, drag: 0.955, life: 0, max: rand(0.8, 1.7), size: rand(1.8, 4.6), color: pick([p.base, p.base, p.hi, '#ffffff'])
+        });
+      }
+    }
+    function drawParticles(dt, rect) {
+      if (!fx) return;
+      if (active && rect && !picking) {
+        sparkleAcc += dt * 16;
+        while (sparkleAcc >= 1) { sparkle(active, rect); sparkleAcc -= 1; }
+      }
+      if (!parts.length && !fx.dirty) return;
+      const c = fxCtx;
+      c.clearRect(0, 0, innerWidth, innerHeight);
+      c.globalCompositeOperation = 'lighter';
+      for (let i = parts.length - 1; i >= 0; i--) {
+        const q = parts[i];
+        q.life += dt;
+        if (q.life >= q.max) { parts.splice(i, 1); continue; }
+        const k = Math.pow(q.drag, dt * 60);
+        q.vx *= k; q.vy = q.vy * k + q.g * dt;
+        q.x += q.vx * dt; q.y += q.vy * dt;
+        c.globalAlpha = 1 - q.life / q.max;
+        c.fillStyle = q.color;
+        if (q.star) { c.fillRect(q.x - q.size, q.y - 0.5, q.size * 2, 1); c.fillRect(q.x - 0.5, q.y - q.size, 1, q.size * 2); }
+        else {
+          c.fillRect(q.x - q.size / 2, q.y - q.size / 2, q.size, q.size);
+          c.globalAlpha *= 0.22; // soft halo
+          c.fillRect(q.x - q.size * 1.6, q.y - q.size * 1.6, q.size * 3.2, q.size * 3.2);
+        }
+      }
+      c.globalAlpha = 1;
+      c.globalCompositeOperation = 'source-over';
+      fx.dirty = parts.length > 0;
+    }
+
+    /* -- The shared frame hook (only runs with motion allowed and the tab visible) -- */
+    function onFrame(t) {
+      const dt = Math.min(0.05, lastT ? (t - lastT) / 1000 : 0.016);
+      lastT = t;
+      const rect = active ? active.svg.getBoundingClientRect() : null; // read before any writes
+      const ease = (k) => 1 - Math.pow(1 - k, dt * 60); // per-frame factor at 60fps, scaled to the real frame time
+
+      // Rain parallax: layers drift opposite to the cursor, nearer layers further
+      if (far || near) {
+        par.x += (par.tx - par.x) * ease(0.06);
+        par.y += (par.ty - par.y) * ease(0.06);
+        const move = (k, s) => `translate3d(${(-par.x * k).toFixed(1)}px, ${(-par.y * k * 0.62).toFixed(1)}px, 0) scale(${s})`;
+        if (far) far.canvas.style.transform = move(7, 1.03);
+        rainCanvas.style.transform = move(15, 1.05);
+        if (near) near.canvas.style.transform = move(30, 1.08);
+      }
+
+      // Cursor tilt and moving specular highlight on the active pill
+      S.forEach((r) => {
+        if (Math.abs(r.tx - r.cx) < 0.001 && Math.abs(r.ty - r.cy) < 0.001) return;
+        r.cx += (r.tx - r.cx) * ease(0.14);
+        r.cy += (r.ty - r.cy) * ease(0.14);
+        r.tilt.style.transform = `rotateX(${(-r.cy * 16).toFixed(2)}deg) rotateY(${(r.cx * 20).toFixed(2)}deg)`;
+        r.spec.setAttribute('transform', `translate(${(r.cx * 28).toFixed(1)} ${(r.cy * 6).toFixed(1)})`);
+      });
+
+      // Brackets follow the floating pill
+      if (rect && !picking) {
+        aimBrackets(rect, false);
+        bk.forEach((b, i) => {
+          b.x += (b.tx - b.x) * ease(0.3);
+          b.y += (b.ty - b.y) * ease(0.3);
+          brackets[i].style.transform = `translate3d(${b.x.toFixed(1)}px, ${b.y.toFixed(1)}px, 0)`;
+        });
+      }
+
+      drawParticles(dt, rect);
+    }
+
+    function setupEffects() {
+      fx = doc.createElement('canvas');
+      fx.className = 'choice__fx';
+      fx.setAttribute('aria-hidden', 'true');
+      $('.choice__shock', el).before(fx);
+      fxCtx = fx.getContext('2d');
+      sizeFx();
+      if (finePointer.matches) { // parallax depth layers: mouse only
+        const farCv = doc.createElement('canvas');
+        farCv.className = 'rain-layer rain-layer--far';
+        farCv.setAttribute('aria-hidden', 'true');
+        rainCanvas.before(farCv);
+        const nearCv = doc.createElement('canvas');
+        nearCv.className = 'rain-layer rain-layer--near';
+        nearCv.setAttribute('aria-hidden', 'true');
+        vignette.after(nearCv);
+        far = Rain.addLayer(farCv, { sizeK: 0.62, speedK: 0.5, densityK: 0.9, res: 0.42 });
+        near = Rain.addLayer(nearCv, { sizeK: 1.8, speedK: 1.7, densityK: 0.08 });
+      }
+      lastT = 0;
+      unhook = Rain.onFrame(onFrame);
+    }
+
+    function teardownEffects() {
+      if (unhook) { unhook(); unhook = null; }
+      [far, near].forEach((L) => { if (L) { Rain.removeLayer(L); L.canvas.remove(); } });
+      far = near = null;
+      if (fx) { fx.width = fx.height = 0; fx.remove(); }
+      fx = fxCtx = null;
+      parts = [];
+      sparkleAcc = 0;
+      rainCanvas.style.transform = '';
+      Rain.setTint(null);
+    }
+
+    /* -- Events: bound per open with one AbortController, so closing removes every listener -- */
+    function bind(signal) {
+      const opt = { signal };
+      doc.addEventListener('keydown', onKey, opt);
+      el.addEventListener('mousedown', (e) => { if (!e.target.closest('.pill-btn')) e.preventDefault(); }, opt); // keep focus where it is
+      window.addEventListener('resize', () => { sizeFx(); if (active) aimBrackets(active.svg.getBoundingClientRect(), true); }, { signal, passive: true });
+      el.addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        par.tx = (e.clientX / innerWidth - 0.5) * 2;
+        par.ty = (e.clientY / innerHeight - 0.5) * 2;
+      }, { signal, passive: true });
+      S.forEach((rec) => {
+        rec.btn.addEventListener('click', () => choose(rec), opt);
+        rec.btn.addEventListener('focus', () => { if (!picking) setActive(rec); }, opt);
+        rec.btn.addEventListener('blur', () => requestAnimationFrame(() => { if (isOpen && !picking) setActive(hovered || focusedRec()); }), opt);
+        // Hover and tilt are for mouse users only; touch is a plain tap
+        rec.btn.addEventListener('pointerenter', (e) => {
+          if (e.pointerType !== 'mouse' || !finePointer.matches || picking) return;
+          hovered = rec;
+          setActive(rec);
+        }, opt);
+        rec.btn.addEventListener('pointerleave', () => {
+          if (hovered !== rec) return;
+          hovered = null;
+          rec.tx = rec.ty = 0;
+          if (!picking) setActive(focusedRec());
+        }, opt);
+        rec.btn.addEventListener('pointermove', (e) => {
+          if (e.pointerType !== 'mouse' || !motion() || picking) return;
+          const r = rec.svg.getBoundingClientRect();
+          const sx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (r.width / 2)));
+          const sy = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (r.height / 2)));
+          // rotate the screen-space offset into the tilted pill's own axes
+          const a = (parseFloat(getComputedStyle(el).getPropertyValue('--tilt')) || -25) * Math.PI / 180;
+          rec.tx = Math.cos(-a) * sx - Math.sin(-a) * sy;
+          rec.ty = Math.sin(-a) * sx + Math.cos(-a) * sy;
+        }, { signal, passive: true });
+      });
+    }
+
+    // Arrow keys move between pills (from the dialog itself they land on the current version's pill)
+    function onKey(e) {
+      if (!isOpen || leaving() || picking) return;
+      if (e.key === 'Escape') { e.preventDefault(); dismiss(); return; }
+      if (!/^Arrow|^Home$|^End$/.test(e.key)) return;
+      e.preventDefault();
+      const i = pills.indexOf(doc.activeElement);
+      const cur = Math.max(0, S.findIndex((r) => r.mode === Theme.current()));
+      let next;
+      if (i < 0) next = cur;
+      else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (i + 1) % pills.length;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (i - 1 + pills.length) % pills.length;
+      else next = e.key === 'Home' ? 0 : pills.length - 1;
+      pills[next].focus();
+    }
 
     function open({ initial = false, done = null } = {}) {
       if (isOpen && leaving()) finalize(); // reopened during the fade-out: finish closing first
       if (isOpen) return;
-      isOpen = true; first = initial; busy = false; onDone = done;
-      doc.dispatchEvent(new CustomEvent('choice:open'));
-      doc.addEventListener('keydown', onKey);
+      isOpen = true; first = initial; busy = false; picking = false; onDone = done;
       returnTo = initial ? null : doc.activeElement;
+      const byKeyboard = !!(returnTo && returnTo.matches && returnTo.matches(':focus-visible'));
       timers.splice(0).forEach(clearTimeout);
-      el.classList.remove('is-leaving', 'is-picked');
-      pills.forEach((p) => p.classList.remove('is-chosen'));
+      doc.dispatchEvent(new CustomEvent('choice:open'));
+      el.classList.remove('is-leaving', 'is-picking', 'is-cracked');
       root.classList.add('choosing');
       el.inert = false;
       site.forEach((n) => { n.inert = true; });
-      const current = pills.find((p) => p.dataset.mode === Theme.current()) || pills[0];
-      requestAnimationFrame(() => current.focus({ preventScroll: true }));
+      ac = new AbortController();
+      bind(ac.signal);
+      if (motion()) {
+        el.classList.add('is-entering');
+        later(() => el.classList.remove('is-entering'), 1650);
+        setupEffects();
+      }
+      // Focus the dialog (no pill pre-selected) unless it was opened from the keyboard
+      const current = S.find((r) => r.mode === Theme.current()) || S[0];
+      requestAnimationFrame(() => {
+        if (!isOpen) return;
+        if (byKeyboard) current.btn.focus({ preventScroll: true });
+        else el.focus({ preventScroll: true });
+      });
     }
 
     // Reveal the site under the overlay, then fade the overlay out
     function close(scrollTop) {
+      applyChoice(); // safety net: never reveal the site before the chosen version is applied
       root.classList.remove('choosing');
       el.classList.add('is-leaving');
       el.inert = true;
       site.forEach((n) => { n.inert = false; });
       if (scrollTop) window.scrollTo({ top: 0, behavior: 'instant' });
-      later(finalize, 600);
+      later(finalize, reduced() ? 450 : 620);
     }
 
     function finalize() {
       timers.splice(0).forEach(clearTimeout);
-      doc.removeEventListener('keydown', onKey);
-      el.classList.remove('is-leaving', 'is-picked');
-      pills.forEach((p) => p.classList.remove('is-chosen'));
-      isOpen = false;
-      busy = false;
+      if (ac) { ac.abort(); ac = null; }
+      teardownEffects();
+      el.classList.remove('is-leaving', 'is-entering', 'is-picking', 'is-cracked');
+      delete el.dataset.active;
+      S.forEach((r) => {
+        r.slot.classList.remove('is-active', 'is-chosen', 'is-dropped');
+        r.btn.style.removeProperty('--to');
+        r.slot.style.removeProperty('--fall');
+        r.tilt.style.transform = '';
+        r.spec.removeAttribute('transform');
+        r.tx = r.ty = r.cx = r.cy = 0;
+      });
+      brackets.forEach((b) => { b.style.transform = ''; });
+      bk.forEach((b) => { b.set = false; });
+      active = hovered = null;
+      isOpen = false; busy = false; picking = false; pending = null;
       if (returnTo && doc.contains(returnTo)) returnTo.focus({ preventScroll: true });
       returnTo = null;
       const cb = onDone;
@@ -2641,44 +3191,70 @@ html.dreaming .crt__flash {
       if (cb) cb();
     }
 
-    function pick(btn) {
+    function choose(rec) {
       if (!isOpen || busy) return;
       busy = true;
-      el.style.setProperty('--flash-rgb', getComputedStyle(btn).getPropertyValue('--pill-rgb').trim());
-      btn.classList.add('is-chosen');
-      el.classList.add('is-picked');   // flash in the pill's colour (CSS)
-      setMode(btn.dataset.mode, { animate: false });
-      Rain.burst(1800);                // rain surge in the new mode (no-op with reduced motion)
-      later(() => close(true), 650);
+      picking = true;
+      const mode = rec.mode;
+      setActive(rec);
+      el.style.setProperty('--flash-rgb', PILLS[mode].rgb);
+      el.classList.add('is-picking');
+
+      pending = mode;
+      if (!motion()) { // reduced motion: no flight, cracking or particles, just a fade
+        applyChoice();
+        later(() => close(true), 80);
+        return;
+      }
+
+      // 1) the chosen pill flies to the centre and grows; the other two fall away
+      const b = rec.btn.getBoundingClientRect();
+      const s = rec.svg.getBoundingClientRect();
+      const grow = Math.max(1, Math.min(1.6, (innerWidth * 0.78) / s.width, (innerHeight * 0.5) / s.height));
+      rec.btn.style.setProperty('--to', `translate(${(innerWidth / 2 - (b.left + b.width / 2)).toFixed(1)}px, ${(innerHeight / 2 - (b.top + b.height / 2)).toFixed(1)}px) scale(${grow.toFixed(2)})`);
+      rec.slot.classList.add('is-chosen');
+      const ci = S.indexOf(rec);
+      S.forEach((o, i) => {
+        if (o === rec) return;
+        o.slot.style.setProperty('--fall', `${i < ci ? -34 : 34}deg`);
+        o.slot.classList.add('is-dropped');
+      });
+
+      // 2) crack at the seam: powder burst, shockwave, glitch flash, rain surges in the new colours
+      later(() => {
+        const c = rec.svg.getBoundingClientRect();
+        const x = c.left + c.width / 2, y = c.top + c.height / 2;
+        el.style.setProperty('--sx', `${x.toFixed(0)}px`);
+        el.style.setProperty('--sy', `${y.toFixed(0)}px`);
+        el.style.setProperty('--shock-scale', (Math.hypot(innerWidth, innerHeight) / 100).toFixed(1));
+        el.classList.add('is-cracked');
+        powder(x, y, mode);
+      }, 560);
+      // the version switch is heavy (content, theme, rain re-layout): let the crack start painting first;
+      // the flash and glitch cover the swap, then the rain surges in the new colours
+      later(() => { applyChoice(); Rain.burst(1800); }, 680);
+
+      // 3) fade into the site in that mode
+      later(() => close(true), 1000);
+    }
+
+    // Switch the site to the chosen version exactly once per pick
+    function applyChoice() {
+      if (!pending) return;
+      const mode = pending;
+      pending = null;
+      setMode(mode, { animate: false });
     }
 
     // Esc: on the first visit keep the current (default) version; when reopened, close unchanged
     function dismiss() {
       if (!isOpen || busy) return;
-      if (first) { pick(pills.find((p) => p.dataset.mode === Theme.current()) || pills[0]); return; }
+      if (first) { choose(S.find((r) => r.mode === Theme.current()) || S[0]); return; }
       busy = true;
       close(false);
     }
 
-    // Listens on document while open, so keys still work after a click on the empty backdrop
-    function onKey(e) {
-      if (!isOpen || leaving()) return;
-      if (e.key === 'Escape') { e.preventDefault(); dismiss(); return; }
-      let i = pills.indexOf(doc.activeElement);
-      if (i < 0 && /^Arrow|^Home$|^End$/.test(e.key)) i = Math.max(0, pills.findIndex((p) => p.dataset.mode === Theme.current()));
-      if (i < 0) return;
-      let next = -1;
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (i + 1) % pills.length;
-      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (i - 1 + pills.length) % pills.length;
-      else if (e.key === 'Home') next = 0;
-      else if (e.key === 'End') next = pills.length - 1;
-      if (next >= 0) { e.preventDefault(); pills[next].focus(); }
-    }
-
-    pills.forEach((btn) => btn.addEventListener('click', () => pick(btn)));
-    el.addEventListener('mousedown', (e) => { if (!e.target.closest('.pill-btn')) e.preventDefault(); }); // keep focus on a pill
     $('.nav__pill').addEventListener('click', () => open());
-
     return { open };
   })();
 
